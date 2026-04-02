@@ -142,13 +142,13 @@ const Footer = () => {
                 <Mail className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>info@meaningmatters.org</span>
               </a>
-              <a href="tel:+2348000000000" className="flex items-start gap-2.5 hover:text-primary-foreground transition-colors">
+              <a href="tel:+233537081030" className="flex items-start gap-2.5 hover:text-primary-foreground transition-colors">
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>+234 800 000 0000</span>
+                <span>+233 53 708 1030</span>
               </a>
               <div className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>123 Purpose Drive, Suite 100<br />Lagos, Nigeria</span>
+                <span>V151 Darko Street<br />Accra, Ghana</span>
               </div>
             </div>
           </div>

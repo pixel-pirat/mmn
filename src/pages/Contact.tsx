@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { submitContact } from "@/lib/api";
 import { useSEO } from "@/lib/seo";
 
-const WHATSAPP_NUMBER = "2348000000000"; // Replace with real WhatsApp number
+const WHATSAPP_NUMBER = "233537081030";
 
 const Contact = () => {
   useSEO({
@@ -68,8 +68,8 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-sm">Phone</h4>
-                      <a href="tel:+2348000000000" className="text-muted-foreground text-sm hover:text-primary transition-colors">
-                        +234 800 000 0000
+                      <a href="tel:+233537081030" className="text-muted-foreground text-sm hover:text-primary transition-colors">
+                        +233 53 708 1030
                       </a>
                     </div>
                   </div>
@@ -79,7 +79,7 @@ const Contact = () => {
                     </div>
                     <div>
                       <h4 className="font-semibold text-sm">Office</h4>
-                      <p className="text-muted-foreground text-sm">123 Purpose Drive, Suite 100<br />Lagos, Nigeria</p>
+                      <p className="text-muted-foreground text-sm">V151 Darko Street<br />Accra, Ghana</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -105,7 +105,7 @@ const Contact = () => {
               <div className="rounded-xl overflow-hidden border h-48">
                 <iframe
                   title="MMN Office Location"
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253682.46307326!2d3.1438710!3d6.5480350!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8b2ae68280c1%3A0xdc9e87a367c3d9cb!2sLagos%2C%20Nigeria!5e0!3m2!1sen!2sng!4v1700000000000"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127521.98!2d-0.2057!3d5.6037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdf9084b2d34a333%3A0xb7a8e5b6f4e5b6f4!2sAccra%2C%20Ghana!5e0!3m2!1sen!2sgh!4v1700000000000"
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
