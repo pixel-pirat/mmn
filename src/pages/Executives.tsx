@@ -4,21 +4,18 @@ import { Linkedin } from "lucide-react";
 import { useSEO } from "@/lib/seo";
 
 const executives = [
-  { name: "Dr. Emmanuel Osei", title: "Founder & Chairman", bio: "A visionary leader with 20+ years in youth development and community empowerment.", expertise: "Strategic Leadership", section: "board" },
-  { name: "Grace Amadi", title: "Board Member", bio: "Educator and policy advocate for youth spiritual and moral development.", expertise: "Education Policy", section: "board" },
-  { name: "Prof. James Mensah", title: "Board Member", bio: "Professor of Ethics with a passion for shaping value-driven youth programs.", expertise: "Ethics & Philosophy", section: "board" },
-  { name: "Sarah Nkrumah", title: "Executive Director", bio: "Experienced nonprofit leader driving operational excellence and community impact.", expertise: "Nonprofit Management", section: "executive" },
-  { name: "Michael Adjei", title: "Programs Director", bio: "Designs and oversees all workshops, seminars, and mentorship programs.", expertise: "Program Development", section: "executive" },
-  { name: "Amina Bello", title: "Communications Director", bio: "Storyteller and strategist amplifying MMN's mission to wider audiences.", expertise: "Marketing & Media", section: "executive" },
-  { name: "David Okonkwo", title: "Youth Engagement Lead", bio: "Passionate about connecting youth with meaningful growth opportunities.", expertise: "Community Outreach", section: "executive" },
-  { name: "Dr. Fatima Hassan", title: "Advisory Council", bio: "International development expert advising on program scalability.", expertise: "International Development", section: "advisory" },
-  { name: "Rev. Peter Asante", title: "Advisory Council", bio: "Spiritual leader guiding the faith-based dimensions of MMN's programs.", expertise: "Spiritual Mentorship", section: "advisory" },
+  { name: "Joseph Zah-Nyatefe", title: "President", bio: "Visionary leader steering MMN's mission of empowering youth through purpose, integrity, and excellence.", expertise: "Leadership & Strategy", section: "executive" },
+  { name: "Joan Sefakor Agyei-Kumah", title: "Vice President", bio: "Dedicated to advancing MMN's programs and supporting the president in driving the organisation's vision forward.", expertise: "Program Oversight", section: "executive" },
+  { name: "Bless Dzikunu", title: "Secretary", bio: "Ensures smooth organisational operations, record-keeping, and effective communication across all teams.", expertise: "Administration", section: "executive" },
+  { name: "Zerez Teye Gormey", title: "Program Coordinator", bio: "Designs and coordinates MMN's workshops, seminars, and youth development initiatives.", expertise: "Program Development", section: "executive" },
+  { name: "Emmanuel K. Amenyo", title: "Vice Program Coordinator", bio: "Supports the planning and execution of MMN's programs, ensuring quality delivery and participant engagement.", expertise: "Program Coordination", section: "executive" },
+  { name: "Sheena Agbeamehia", title: "Treasurer", bio: "Manages MMN's finances with transparency and accountability, ensuring resources are directed toward maximum impact.", expertise: "Financial Management", section: "executive" },
+  { name: "Lois Naamah", title: "Financial Secretary", bio: "Maintains accurate financial records and supports the treasurer in overseeing MMN's financial health.", expertise: "Financial Administration", section: "executive" },
+  { name: "Judith Gamasen", title: "Membership & Welfare Director", bio: "Champions member welfare and drives community building, ensuring every MMN member feels valued and supported.", expertise: "Member Welfare & Community", section: "executive" },
 ];
 
 const sections = [
-  { key: "board", title: "Board of Directors" },
   { key: "executive", title: "Executive Team" },
-  { key: "advisory", title: "Advisory Council" },
 ];
 
 const Executives = () => {
