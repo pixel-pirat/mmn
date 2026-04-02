@@ -3,6 +3,7 @@ import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Users, Video, Heart, Lightbulb, ArrowRight } from "lucide-react";
+import { useSEO } from "@/lib/seo";
 
 const programs = [
   {
@@ -38,6 +39,11 @@ const programs = [
 ];
 
 const Programs = () => {
+  useSEO({
+    title: "Our Programs",
+    description: "Explore MMN's workshops, seminars, webinars, mentorship programs, and leadership development initiatives for youth.",
+  });
+
   return (
     <Layout>
       <section className="gradient-primary py-20">

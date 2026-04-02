@@ -9,11 +9,13 @@ import Executives from "./pages/Executives";
 import Programs from "./pages/Programs";
 import Events from "./pages/Events";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import Impact from "./pages/Impact";
 import GetInvolved from "./pages/GetInvolved";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -30,10 +32,12 @@ const App = () => (
           <Route path="/programs" element={<Programs />} />
           <Route path="/events" element={<Events />} />
           <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/impact" element={<Impact />} />
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

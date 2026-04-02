@@ -1,8 +1,37 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Mail, MapPin, Phone } from "lucide-react";
+import { Heart, Mail, MapPin, Phone, Facebook, Instagram, Youtube, MessageCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { subscribeNewsletter } from "@/lib/api";
 import logo from "@/assets/mmn-logo.png";
 
+// Replace these with real social media URLs
+const SOCIAL_LINKS = {
+  facebook: "https://facebook.com/meaningmattersnetwork",
+  instagram: "https://instagram.com/meaningmattersnetwork",
+  youtube: "https://youtube.com/@meaningmattersnetwork",
+  whatsapp: "https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK",
+};
+
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleNewsletter = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setLoading(true);
+    try {
+      const res = await subscribeNewsletter(email);
+      toast.success(res.message);
+      setEmail("");
+    } catch {
+      toast.error("Subscription failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <footer className="gradient-dark text-primary-foreground">
       {/* Newsletter */}
@@ -14,14 +43,23 @@ const Footer = () => {
           <p className="text-primary-foreground/70 mb-6 max-w-md mx-auto text-sm">
             Subscribe to our newsletter for updates on programs, events, and impact stories.
           </p>
-          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={(e) => e.preventDefault()}>
+          <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto" onSubmit={handleNewsletter}>
+            <label htmlFor="footer-email" className="sr-only">Email address</label>
             <input
+              id="footer-email"
               type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
               placeholder="Your email address"
+              required
               className="flex-1 px-4 py-2.5 rounded-xl bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 border border-primary-foreground/15 focus:outline-none focus:ring-2 focus:ring-primary-foreground/30 backdrop-blur-sm"
             />
-            <button className="px-6 py-2.5 rounded-xl bg-primary-foreground text-foreground font-bold hover:bg-primary-foreground/90 transition-colors shadow-elevated">
-              Subscribe
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2.5 rounded-xl bg-primary-foreground text-foreground font-bold hover:bg-primary-foreground/90 transition-colors shadow-elevated disabled:opacity-70 flex items-center justify-center gap-2"
+            >
+              {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Subscribing…</> : "Subscribe"}
             </button>
           </form>
         </div>
@@ -33,7 +71,7 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <Link to="/" className="flex items-center gap-2.5 mb-5">
-              <img src={logo} alt="MMN Logo" className="h-10 w-auto brightness-200" />
+              <img src={logo} alt="MeaningMatters Network Logo" className="h-10 w-auto brightness-200" />
               <div className="flex flex-col leading-none">
                 <span className="font-heading font-bold text-base">MeaningMatters</span>
                 <span className="text-[10px] font-medium tracking-[0.15em] uppercase text-primary-foreground/50">
@@ -44,9 +82,24 @@ const Footer = () => {
             <p className="text-sm text-primary-foreground/50 mb-4 leading-relaxed">
               Empowering young minds to live with purpose through spiritual growth, moral integrity, and academic excellence.
             </p>
-            <p className="text-xs text-primary-foreground/30 italic font-heading">
+            <p className="text-xs text-primary-foreground/30 italic font-heading mb-5">
               "Everything Starts and Ends With Purpose."
             </p>
+            {/* Social Links */}
+            <div className="flex items-center gap-3">
+              <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-8 h-8 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-[#1877F2] transition-colors">
+                <Facebook className="h-4 w-4" />
+              </a>
+              <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-8 h-8 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-[#E1306C] transition-colors">
+                <Instagram className="h-4 w-4" />
+              </a>
+              <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-8 h-8 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-[#FF0000] transition-colors">
+                <Youtube className="h-4 w-4" />
+              </a>
+              <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Community" className="w-8 h-8 rounded-lg bg-primary-foreground/10 flex items-center justify-center hover:bg-[#25D366] transition-colors">
+                <MessageCircle className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
           {/* Quick Links */}
@@ -59,7 +112,7 @@ const Footer = () => {
                 { to: "/events", label: "Events" },
                 { to: "/blog", label: "Blog" },
                 { to: "/impact", label: "Impact" },
-                { to: "/get-involved", label: "Get Involved" },
+                { to: "/gallery", label: "Gallery" },
               ].map((link) => (
                 <Link key={link.to} to={link.to} className="hover:text-primary-foreground transition-colors">
                   {link.label}
@@ -76,6 +129,7 @@ const Footer = () => {
               <Link to="/get-involved" className="hover:text-primary-foreground transition-colors">Become a Mentor</Link>
               <Link to="/get-involved" className="hover:text-primary-foreground transition-colors">Partner With Us</Link>
               <Link to="/get-involved" className="hover:text-primary-foreground transition-colors">Donate</Link>
+              <a href={SOCIAL_LINKS.whatsapp} target="_blank" rel="noopener noreferrer" className="hover:text-primary-foreground transition-colors">Join WhatsApp Community</a>
               <Link to="/contact" className="hover:text-primary-foreground transition-colors">Contact Us</Link>
             </nav>
           </div>
@@ -84,17 +138,17 @@ const Footer = () => {
           <div>
             <h4 className="font-heading font-semibold mb-5 text-sm tracking-wide">Contact</h4>
             <div className="flex flex-col gap-3.5 text-sm text-primary-foreground/50">
-              <div className="flex items-start gap-2.5">
+              <a href="mailto:info@meaningmatters.org" className="flex items-start gap-2.5 hover:text-primary-foreground transition-colors">
                 <Mail className="h-4 w-4 mt-0.5 shrink-0" />
                 <span>info@meaningmatters.org</span>
-              </div>
-              <div className="flex items-start gap-2.5">
+              </a>
+              <a href="tel:+2348000000000" className="flex items-start gap-2.5 hover:text-primary-foreground transition-colors">
                 <Phone className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>+1 (555) 000-0000</span>
-              </div>
+                <span>+234 800 000 0000</span>
+              </a>
               <div className="flex items-start gap-2.5">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                <span>123 Purpose Drive, Suite 100</span>
+                <span>123 Purpose Drive, Suite 100<br />Lagos, Nigeria</span>
               </div>
             </div>
           </div>

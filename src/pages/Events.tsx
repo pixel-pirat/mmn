@@ -1,13 +1,64 @@
+import { useState } from "react";
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight, X, Loader2, ExternalLink } from "lucide-react";
+import { toast } from "sonner";
+import { registerForEvent } from "@/lib/api";
+import { useSEO } from "@/lib/seo";
 
-const upcomingEvents = [
-  { title: "Purpose Discovery Workshop", date: "March 15, 2026", time: "10:00 AM – 2:00 PM", location: "Community Center, Lagos", type: "Workshop" },
-  { title: "Youth Leadership Summit 2026", date: "April 5–6, 2026", time: "9:00 AM – 5:00 PM", location: "Grand Conference Hall, Accra", type: "Seminar" },
-  { title: "Faith & Academic Excellence Webinar", date: "April 20, 2026", time: "6:00 PM – 7:30 PM", location: "Online (Zoom)", type: "Webinar" },
-  { title: "Mentorship Kick-Off 2026", date: "May 1, 2026", time: "3:00 PM – 5:00 PM", location: "MMN HQ", type: "Mentorship" },
+interface Event {
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  type: string;
+  description: string;
+  gcalStart: string; // YYYYMMDDTHHMMSS
+  gcalEnd: string;
+}
+
+const upcomingEvents: Event[] = [
+  {
+    title: "Purpose Discovery Workshop",
+    date: "March 15, 2026",
+    time: "10:00 AM – 2:00 PM",
+    location: "Community Center, Lagos",
+    type: "Workshop",
+    description: "An interactive workshop to help youth uncover their life's purpose through guided exercises and group discussion.",
+    gcalStart: "20260315T100000",
+    gcalEnd: "20260315T140000",
+  },
+  {
+    title: "Youth Leadership Summit 2026",
+    date: "April 5–6, 2026",
+    time: "9:00 AM – 5:00 PM",
+    location: "Grand Conference Hall, Accra",
+    type: "Seminar",
+    description: "Two days of inspiring talks, workshops, and networking with young leaders from across Africa.",
+    gcalStart: "20260405T090000",
+    gcalEnd: "20260406T170000",
+  },
+  {
+    title: "Faith & Academic Excellence Webinar",
+    date: "April 20, 2026",
+    time: "6:00 PM – 7:30 PM",
+    location: "Online (Zoom)",
+    type: "Webinar",
+    description: "A virtual session exploring the connection between spiritual grounding and academic achievement.",
+    gcalStart: "20260420T180000",
+    gcalEnd: "20260420T193000",
+  },
+  {
+    title: "Mentorship Kick-Off 2026",
+    date: "May 1, 2026",
+    time: "3:00 PM – 5:00 PM",
+    location: "MMN HQ, Lagos",
+    type: "Mentorship",
+    description: "The official launch of the 2026 mentorship cohort. Meet your mentor and begin your journey.",
+    gcalStart: "20260501T150000",
+    gcalEnd: "20260501T170000",
+  },
 ];
 
 const pastEvents = [
@@ -16,7 +67,98 @@ const pastEvents = [
   { title: "Academic Excellence Awards Night", highlight: "Celebrating top achieving youth scholars" },
 ];
 
+function buildGCalLink(event: Event) {
+  const title = encodeURIComponent(event.title);
+  const details = encodeURIComponent(event.description);
+  const location = encodeURIComponent(event.location);
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${event.gcalStart}/${event.gcalEnd}&details=${details}&location=${location}`;
+}
+
+function RegisterModal({ event, onClose }: { event: Event; onClose: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.email) return toast.error("Please fill in your name and email.");
+    setLoading(true);
+    try {
+      const res = await registerForEvent({
+        event_name: event.title,
+        event_date: event.date,
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+      });
+      toast.success(res.message);
+      onClose();
+    } catch {
+      toast.error("Registration failed. Please try again or contact us directly.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-card rounded-2xl p-8 shadow-elevated border w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-6">
+          <div>
+            <h3 className="font-heading text-xl font-bold">Register for Event</h3>
+            <p className="text-muted-foreground text-sm mt-1">{event.title}</p>
+          </div>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-muted transition-colors" aria-label="Close">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground mb-6 bg-muted rounded-lg p-3">
+          <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{event.date}</span>
+          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{event.time}</span>
+          <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.location}</span>
+        </div>
+
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="reg-name" className="text-sm font-medium mb-1 block">Full Name <span className="text-destructive">*</span></label>
+            <input id="reg-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your full name" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+          <div>
+            <label htmlFor="reg-email" className="text-sm font-medium mb-1 block">Email <span className="text-destructive">*</span></label>
+            <input id="reg-email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="your@email.com" type="email" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+          <div>
+            <label htmlFor="reg-phone" className="text-sm font-medium mb-1 block">Phone (optional)</label>
+            <input id="reg-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+234 800 000 0000" className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+          <Button disabled={loading} className="gradient-primary text-primary-foreground border-0 w-full">
+            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Registering…</> : "Confirm Registration"}
+          </Button>
+        </form>
+
+        <div className="mt-4 pt-4 border-t">
+          <a
+            href={buildGCalLink(event)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+          >
+            <ExternalLink className="h-3.5 w-3.5" /> Add to Google Calendar
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const Events = () => {
+  useSEO({
+    title: "Events",
+    description: "Join MeaningMatters Network at upcoming workshops, seminars, webinars, and mentorship events.",
+  });
+
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
   return (
     <Layout>
       <section className="gradient-primary py-20">
@@ -39,15 +181,26 @@ const Events = () => {
                   <div className="flex-1">
                     <span className="text-xs font-medium bg-accent text-accent-foreground px-2 py-0.5 rounded-full">{e.type}</span>
                     <h3 className="font-heading font-semibold text-lg mt-2">{e.title}</h3>
-                    <div className="flex flex-wrap gap-4 mt-2 text-muted-foreground text-sm">
+                    <p className="text-muted-foreground text-sm mt-1 mb-2">{e.description}</p>
+                    <div className="flex flex-wrap gap-4 text-muted-foreground text-sm">
                       <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{e.date}</span>
                       <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{e.time}</span>
                       <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{e.location}</span>
                     </div>
                   </div>
-                  <Button className="gradient-primary text-primary-foreground border-0 shrink-0">
-                    Register <ArrowRight className="ml-2 h-3 w-3" />
-                  </Button>
+                  <div className="flex flex-col gap-2 shrink-0">
+                    <Button onClick={() => setSelectedEvent(e)} className="gradient-primary text-primary-foreground border-0">
+                      Register <ArrowRight className="ml-2 h-3 w-3" />
+                    </Button>
+                    <a
+                      href={buildGCalLink(e)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-center text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" /> Add to Calendar
+                    </a>
+                  </div>
                 </div>
               </SectionReveal>
             ))}
@@ -71,6 +224,9 @@ const Events = () => {
           </div>
         </div>
       </section>
+
+      {/* Registration Modal */}
+      {selectedEvent && <RegisterModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
     </Layout>
   );
 };

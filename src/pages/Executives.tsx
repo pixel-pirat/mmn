@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Linkedin } from "lucide-react";
+import { useSEO } from "@/lib/seo";
 
 const executives = [
   { name: "Dr. Emmanuel Osei", title: "Founder & Chairman", bio: "A visionary leader with 20+ years in youth development and community empowerment.", expertise: "Strategic Leadership", section: "board" },
@@ -21,6 +22,11 @@ const sections = [
 ];
 
 const Executives = () => {
+  useSEO({
+    title: "Our Leadership",
+    description: "Meet the dedicated board, executive team, and advisory council driving MeaningMatters Network's mission forward.",
+  });
+
   return (
     <Layout>
       <section className="gradient-primary py-20">

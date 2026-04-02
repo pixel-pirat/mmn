@@ -1,6 +1,9 @@
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Award, Handshake, Newspaper, Globe, FileText, Heart } from "lucide-react";
+import { useSEO } from "@/lib/seo";
+
+const ANNUAL_REPORT_URL = "/annual-report-2025.pdf"; // Replace with real file URL
 
 const highlights = [
   { icon: Award, title: "Youth Empowerment Award 2025", desc: "Recognized by the National Youth Council for outstanding community impact." },
@@ -16,6 +19,11 @@ const stories = [
 ];
 
 const Impact = () => {
+  useSEO({
+    title: "Impact & Recognition",
+    description: "See the real-world impact of MeaningMatters Network — lives changed, communities reached, and recognition earned.",
+  });
+
   return (
     <Layout>
       <section className="gradient-primary py-20">
@@ -75,9 +83,13 @@ const Impact = () => {
             <p className="text-muted-foreground mb-6">
               Download our annual reports to see a comprehensive overview of our programs, finances, and impact.
             </p>
-            <button className="gradient-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">
+            <a
+              href={ANNUAL_REPORT_URL}
+              download
+              className="gradient-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity inline-block"
+            >
               Download 2025 Report (PDF)
-            </button>
+            </a>
           </div>
         </section>
       </SectionReveal>

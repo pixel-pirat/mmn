@@ -5,6 +5,7 @@ import Layout from "@/components/Layout";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import SectionReveal from "@/components/SectionReveal";
 import heroBg from "@/assets/hero-bg.jpg";
+import { useSEO } from "@/lib/seo";
 
 const programs = [
   { icon: BookOpen, title: "Workshops", desc: "Interactive sessions on spiritual growth and personal development." },
@@ -21,12 +22,17 @@ const testimonials = [
 ];
 
 const Index = () => {
+  useSEO({
+    title: "Home",
+    description: "MeaningMatters Network empowers young people through spiritual growth, moral integrity, and academic excellence. Join the movement.",
+  });
+
   return (
     <Layout>
       {/* Hero */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBg} alt="" className="w-full h-full object-cover scale-105" />
+          <img src={heroBg} alt="Young people at a MeaningMatters Network leadership event" className="w-full h-full object-cover scale-105" />
           <div className="absolute inset-0 gradient-hero" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
         </div>
@@ -64,11 +70,11 @@ const Index = () => {
                   Upcoming Events
                 </Button>
               </Link>
-              <Link to="/get-involved">
+              <a href="https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK" target="_blank" rel="noopener noreferrer">
                 <Button size="lg" variant="outline" className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 rounded-xl backdrop-blur-sm">
-                  Donate Now
+                  Join WhatsApp Community
                 </Button>
-              </Link>
+              </a>
             </div>
           </div>
         </div>

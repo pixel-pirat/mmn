@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Heart, BookOpen, Award, Users, Shield, Eye, Target } from "lucide-react";
+import { useSEO } from "@/lib/seo";
 
 const values = [
   { icon: Heart, title: "Spiritual Growth", desc: "Nurturing inner depth and connection to purpose." },
@@ -11,6 +12,11 @@ const values = [
 ];
 
 const About = () => {
+  useSEO({
+    title: "About Us",
+    description: "Learn about MeaningMatters Network — our story, mission, vision, and the values driving youth empowerment across Africa.",
+  });
+
   return (
     <Layout>
       {/* Hero */}
