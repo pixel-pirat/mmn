@@ -24,8 +24,17 @@ app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 // ── CORS ─────────────────────────────────────────────────────
+const allowedOrigins = (process.env.CORS_ORIGIN ?? "http://localhost:5173")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
+  origin: (origin, callback) => {
+    // allow requests with no origin (e.g. curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
   methods: ["GET", "POST", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));

@@ -77,7 +77,6 @@ const Challenges = () => {
         </div>
       </section>
 
-
       {/* 7-Day Giving Challenge */}
       <section className="py-16">
         <div className="container max-w-3xl">
@@ -135,7 +134,7 @@ const Challenges = () => {
                       <button
                         key={day}
                         onClick={() => toggleDay(day)}
-                        className={`flex flex-col items-center justify-center rounded-xl p-3 border-2 transition-all duration-200 group ${
+                        className={`flex flex-col items-center justify-center rounded-xl p-3 border-2 transition-all duration-200 ${
                           done
                             ? "gradient-primary border-transparent text-primary-foreground shadow-glow"
                             : "border-border hover:border-primary bg-muted/40 hover:bg-accent"
@@ -199,7 +198,6 @@ const Challenges = () => {
         </div>
       </section>
 
-
       {/* Coming Soon Challenges */}
       <section className="py-16 gradient-subtle">
         <div className="container max-w-3xl">
@@ -216,7 +214,7 @@ const Challenges = () => {
           <div className="grid sm:grid-cols-3 gap-5">
             {upcomingChallenges.map((c, i) => (
               <SectionReveal key={i}>
-                <div className="bg-card rounded-xl p-6 shadow-card border relative overflow-hidden group">
+                <div className="bg-card rounded-xl p-6 shadow-card border relative overflow-hidden">
                   <div className="absolute inset-0 bg-muted/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 rounded-xl">
                     <Lock className="h-6 w-6 text-muted-foreground mb-2" />
                     <span className="text-xs font-semibold text-muted-foreground">Coming Soon</span>
