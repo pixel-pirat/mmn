@@ -41,36 +41,36 @@ Purpose is revealed through action, not just reflection. Start small — volunte
 Remember: purpose is not a destination, it's a direction. Start walking.`,
   },
   {
-    slug: "how-mentorship-transforms-academic-performance",
-    title: "How Mentorship Transforms Academic Performance",
-    category: "Academic Excellence",
+    slug: "how-mentorship-transforms-performance",
+    title: "How Mentorship Transforms Personal Growth",
+    category: "Purpose Discovery",
     date: "Feb 3, 2026",
     author: "MMN Editorial Team",
-    excerpt: "Studies show that mentored youth achieve 20% higher grades. We explore why mentorship matters.",
-    content: `The data is clear: young people with mentors consistently outperform their peers academically. But the numbers only tell part of the story. The real transformation happens in the relationship itself.
+    excerpt: "Mentored individuals consistently grow faster and with more clarity. We explore why mentorship is a cornerstone of purposeful living.",
+    content: `The evidence is clear: individuals with mentors grow faster, with more clarity and confidence. But the numbers only tell part of the story. The real transformation happens in the relationship itself.
 
 **The Confidence Factor**
 
-One of the most significant impacts of mentorship is the boost in self-confidence. When a young person has an experienced adult who believes in them, they begin to believe in themselves. This shift in self-perception directly translates to academic risk-taking — attempting harder problems, asking more questions, and persisting through difficulty.
+One of the most significant impacts of mentorship is the boost in self-confidence. When an individual has an experienced guide who believes in them, they begin to believe in themselves. This shift in self-perception directly translates to bold action — attempting harder challenges, asking more questions, and persisting through difficulty.
 
 **Accountability Without Judgment**
 
-A good mentor creates a safe space for honest conversation. Students can admit when they're struggling without fear of judgment. This psychological safety is crucial for learning. When students feel safe to fail, they're more willing to try.
+A good mentor creates a safe space for honest conversation. Individuals can admit when they're struggling without fear of judgment. This psychological safety is crucial for growth. When people feel safe to fail, they're more willing to try.
 
 **Practical Guidance**
 
-Mentors provide the kind of practical, experience-based guidance that textbooks can't offer. Study strategies, time management, navigating university applications — these are areas where a mentor's lived experience is invaluable.
+Mentors provide the kind of practical, experience-based guidance that no book can offer. Purpose discovery, career navigation, personal development — these are areas where a mentor's lived experience is invaluable.
 
 **The MMN Mentorship Difference**
 
-At MeaningMatters Network, our mentorship program pairs youth not just with academic advisors, but with whole-person guides. We believe academic excellence flows from spiritual grounding and moral clarity. Our mentors are trained to address the whole person, not just the student.
+At MeaningMatters Network, our mentorship program pairs individuals not just with advisors, but with whole-person guides. We believe purposeful living flows from spiritual grounding and moral clarity. Our mentors are trained to address the whole person.
 
 If you're interested in becoming a mentor or being mentored, visit our Get Involved page today.`,
   },
   {
     slug: "building-moral-courage-in-a-digital-age",
     title: "Building Moral Courage in a Digital Age",
-    category: "Moral Development",
+    category: "Personal Development",
     date: "Jan 25, 2026",
     author: "MMN Editorial Team",
     excerpt: "In a world of online pressures, moral courage is more essential than ever. Practical tips for youth navigating today's challenges.",
@@ -156,35 +156,35 @@ Our alumni network is one of our most powerful assets. Former participants becom
 Join the MMN community today. Your people are waiting.`,
   },
   {
-    slug: "preparing-for-university-a-holistic-approach",
-    title: "Preparing for University: A Holistic Approach",
-    category: "Academic Excellence",
+    slug: "preparing-for-life-a-holistic-approach",
+    title: "Preparing for Life: A Holistic Approach",
+    category: "Purpose Discovery",
     date: "Jan 3, 2026",
     author: "MMN Editorial Team",
-    excerpt: "Academic success starts with a strong foundation. Our guide covers spiritual, moral, and academic preparation.",
-    content: `University is one of the most significant transitions in a young person's life. The academic demands are real, but they're only part of the challenge. The students who thrive are those who arrive prepared not just academically, but holistically.
-
-**Academic Preparation**
-
-Start building strong study habits before you arrive. Learn to read actively, take effective notes, and manage your time. Familiarize yourself with the subject areas you'll be studying. If possible, connect with current students in your program to understand what to expect.
+    excerpt: "Purposeful living starts with a strong foundation. Our guide covers spiritual, moral, and intellectual preparation for life's journey.",
+    content: `Life's most significant transitions demand more than surface-level preparation. The individuals who thrive are those who arrive prepared not just intellectually, but holistically — spirit, character, and mind aligned.
 
 **Spiritual Preparation**
 
-University can be a season of significant spiritual questioning. This is healthy and normal. Prepare by deepening your spiritual foundation before you go. Know what you believe and why. Find a faith community on or near campus early in your first semester.
+Life can be a season of significant spiritual questioning. This is healthy and normal. Prepare by deepening your spiritual foundation. Know what you believe and why. Find a community that nurtures your faith and values.
 
 **Moral Preparation**
 
-University environments can present significant moral challenges — peer pressure, substance use, ethical compromises in academic work. Prepare by clarifying your values in advance. Decide who you want to be before you're in situations that test it.
+Life presents significant moral challenges — peer pressure, ethical compromises, and the temptation to take shortcuts. Prepare by clarifying your values in advance. Decide who you want to be before you're in situations that test it.
+
+**Intellectual Preparation**
+
+Develop a love for learning. Read widely, think critically, and stay curious. Intellectual growth is not confined to classrooms — it happens everywhere you choose to engage with ideas.
 
 **Emotional Preparation**
 
-Homesickness, loneliness, and academic pressure are common in the first year. Build emotional resilience by developing healthy coping strategies: exercise, journaling, prayer, talking to trusted friends. Know the signs of burnout and don't be afraid to seek help.
+Build emotional resilience by developing healthy coping strategies: exercise, journaling, prayer, talking to trusted friends. Know the signs of burnout and don't be afraid to seek help.
 
 **Practical Preparation**
 
-Learn basic life skills: cooking, budgeting, laundry, time management. These practical competencies reduce stress and free up mental energy for learning.
+Learn basic life skills: budgeting, time management, communication, and self-care. These practical competencies reduce stress and free up mental energy for purposeful living.
 
-University is an incredible opportunity. Arrive prepared, and you'll be positioned not just to survive it, but to thrive.`,
+Life is an incredible opportunity. Arrive prepared, and you'll be positioned not just to survive it, but to thrive.`,
   },
 ];
 

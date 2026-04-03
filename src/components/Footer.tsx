@@ -80,7 +80,7 @@ const Footer = () => {
               </div>
             </Link>
             <p className="text-sm text-primary-foreground/50 mb-4 leading-relaxed">
-              Empowering young minds to live with purpose through spiritual growth, moral integrity, and academic excellence.
+              Committed to helping individuals discover their identity, unlock their potential, and live purposeful, impactful lives.
             </p>
             <p className="text-xs text-primary-foreground/30 italic font-heading mb-5">
               "Everything Starts and Ends With Purpose."

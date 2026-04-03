@@ -2,12 +2,13 @@ import { useState } from "react";
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Button } from "@/components/ui/button";
-import { Heart, Users, Handshake, DollarSign, Loader2 } from "lucide-react";
+import { Heart, Users, Handshake, DollarSign, Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
-import { submitVolunteer, submitMentor, submitPartner } from "@/lib/api";
+import { submitVolunteer, submitMentor, submitPartner, submitContact } from "@/lib/api";
 import { useSEO } from "@/lib/seo";
 
 const tabs = [
+  { key: "member", label: "Become a Member", icon: UserPlus },
   { key: "volunteer", label: "Volunteer", icon: Users },
   { key: "mentor", label: "Become a Mentor", icon: Heart },
   { key: "partner", label: "Partner With Us", icon: Handshake },
@@ -16,6 +17,64 @@ const tabs = [
 
 const DONATION_AMOUNTS = ["$25", "$50", "$100", "$250"];
 const PAYSTACK_LINK = "https://paystack.com/pay/mmn-donate"; // Replace with real Paystack payment link
+
+function MemberForm() {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", phone: "", occupation: "", motivation: "" });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await submitContact({
+        name: form.name,
+        email: form.email,
+        subject: "Membership Application",
+        message: `Phone: ${form.phone}\nOccupation: ${form.occupation}\nWhy I want to join: ${form.motivation}`,
+      });
+      toast.success("Membership application received! We'll be in touch soon.");
+      setForm({ name: "", email: "", phone: "", occupation: "", motivation: "" });
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h3 className="font-heading text-2xl font-bold mb-2">Become a Member</h3>
+      <p className="text-muted-foreground mb-6 text-sm">Join the MMN community and be part of a purpose-driven movement.</p>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="mem-name" className="text-sm font-medium mb-1 block">Full Name <span className="text-destructive">*</span></label>
+            <input id="mem-name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Your full name" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+          <div>
+            <label htmlFor="mem-email" className="text-sm font-medium mb-1 block">Email <span className="text-destructive">*</span></label>
+            <input id="mem-email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="your@email.com" type="email" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label htmlFor="mem-phone" className="text-sm font-medium mb-1 block">Phone Number <span className="text-destructive">*</span></label>
+          <input id="mem-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+233 XX XXX XXXX" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+        </div>
+        <div>
+          <label htmlFor="mem-occ" className="text-sm font-medium mb-1 block">Occupation <span className="text-destructive">*</span></label>
+          <input id="mem-occ" value={form.occupation} onChange={e => setForm(f => ({ ...f, occupation: e.target.value }))} placeholder="e.g. Student, Engineer, Teacher" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+        </div>
+        <div>
+          <label htmlFor="mem-motivation" className="text-sm font-medium mb-1 block">Why do you want to join MMN? <span className="text-destructive">*</span></label>
+          <textarea id="mem-motivation" value={form.motivation} onChange={e => setForm(f => ({ ...f, motivation: e.target.value }))} placeholder="Tell us what draws you to MMN..." rows={4} required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none resize-none" />
+        </div>
+        <Button disabled={loading} className="gradient-primary text-primary-foreground border-0 w-full">
+          {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…</> : "Apply for Membership"}
+        </Button>
+      </form>
+    </div>
+  );
+}
 
 function VolunteerForm() {
   const [loading, setLoading] = useState(false);
@@ -52,12 +111,12 @@ function VolunteerForm() {
           </div>
         </div>
         <div>
-          <label htmlFor="vol-phone" className="text-sm font-medium mb-1 block">Phone Number</label>
-          <input id="vol-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+234 800 000 0000" className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
+          <label htmlFor="vol-phone" className="text-sm font-medium mb-1 block">Phone Number <span className="text-destructive">*</span></label>
+          <input id="vol-phone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+233 XX XXX XXXX" required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none" />
         </div>
         <div>
-          <label htmlFor="vol-motivation" className="text-sm font-medium mb-1 block">Why do you want to volunteer?</label>
-          <textarea id="vol-motivation" value={form.motivation} onChange={e => setForm(f => ({ ...f, motivation: e.target.value }))} placeholder="Tell us what drives you..." rows={4} className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none resize-none" />
+          <label htmlFor="vol-motivation" className="text-sm font-medium mb-1 block">Why do you want to volunteer? <span className="text-destructive">*</span></label>
+          <textarea id="vol-motivation" value={form.motivation} onChange={e => setForm(f => ({ ...f, motivation: e.target.value }))} placeholder="Tell us what drives you..." rows={4} required className="w-full px-4 py-2.5 rounded-lg border bg-background text-foreground focus:ring-2 focus:ring-primary focus:outline-none resize-none" />
         </div>
         <Button disabled={loading} className="gradient-primary text-primary-foreground border-0 w-full">
           {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Submitting…</> : "Submit Application"}
@@ -212,7 +271,7 @@ const GetInvolved = () => {
     description: "Volunteer, mentor, partner, or donate to support MeaningMatters Network's mission of empowering youth.",
   });
 
-  const [activeTab, setActiveTab] = useState("volunteer");
+  const [activeTab, setActiveTab] = useState("member");
 
   return (
     <Layout>
@@ -244,6 +303,7 @@ const GetInvolved = () => {
 
           <SectionReveal>
             <div className="bg-card rounded-xl p-8 shadow-card border">
+              {activeTab === "member" && <MemberForm />}
               {activeTab === "volunteer" && <VolunteerForm />}
               {activeTab === "mentor" && <MentorForm />}
               {activeTab === "partner" && <PartnerForm />}

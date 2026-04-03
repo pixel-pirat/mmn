@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Users, Video, Award, Lightbulb, Heart, ArrowRight, Quote, Sparkles } from "lucide-react";
+import { BookOpen, Users, Video, Lightbulb, Heart, ArrowRight, Quote, Sparkles } from "lucide-react";
 import Layout from "@/components/Layout";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import SectionReveal from "@/components/SectionReveal";
@@ -8,23 +8,25 @@ import heroBg from "@/assets/hero-bg.jpg";
 import { useSEO } from "@/lib/seo";
 
 const programs = [
-  { icon: BookOpen, title: "Workshops", desc: "Interactive sessions on spiritual growth and personal development." },
-  { icon: Users, title: "Seminars", desc: "Expert-led discussions on moral excellence and academic achievement." },
-  { icon: Video, title: "Webinars", desc: "Virtual learning experiences connecting youth across communities." },
+  { icon: BookOpen, title: "Workshops", desc: "Interactive sessions on purpose discovery and personal development." },
+  { icon: Users, title: "Seminars", desc: "Expert-led discussions on purpose discovery, personal growth, and moral excellence." },
+  { icon: Video, title: "Webinars", desc: "Virtual learning experiences connecting individuals across communities." },
   { icon: Heart, title: "Mentorship", desc: "One-on-one guidance from experienced leaders and professionals." },
-  { icon: Lightbulb, title: "Leadership Development", desc: "Programs that build the next generation of purpose-driven leaders." },
+  { icon: Lightbulb, title: "Leadership Development", desc: "Programs that build purpose-driven leaders ready to create lasting impact." },
 ];
 
 const testimonials = [
   { quote: "MMN changed my perspective on what it means to live with purpose. The mentorship program gave me clarity and direction.", name: "Amara J.", role: "Program Participant" },
-  { quote: "The leadership workshops equipped me with skills I use every day. I'm grateful for the community MMN has built.", name: "David K.", role: "Youth Leader" },
+  { quote: "The leadership workshops equipped me with skills I use every day. I'm grateful for the community MMN has built.", name: "David K.", role: "Community Leader" },
   { quote: "Partnering with MMN has been one of the most impactful decisions for our organization. Their dedication is unmatched.", name: "Sarah M.", role: "Community Partner" },
 ];
+
+const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK";
 
 const Index = () => {
   useSEO({
     title: "Home",
-    description: "MeaningMatters Network empowers young people through spiritual growth, moral integrity, and academic excellence. Join the movement.",
+    description: "MeaningMatters Network is committed to helping individuals discover their identity, unlock their potential, and live purposeful, impactful lives.",
   });
 
   return (
@@ -32,7 +34,7 @@ const Index = () => {
       {/* Hero */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBg} alt="Young people at a MeaningMatters Network leadership event" className="w-full h-full object-cover scale-105" />
+          <img src={heroBg} alt="People at a MeaningMatters Network event" className="w-full h-full object-cover scale-105" />
           <div className="absolute inset-0 gradient-hero" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/30 via-transparent to-transparent" />
         </div>
@@ -45,7 +47,7 @@ const Index = () => {
               </span>
             </div>
             <h1 className="font-heading text-4xl md:text-5xl lg:text-[3.5rem] font-extrabold text-primary-foreground leading-[1.1] mb-5 tracking-tight">
-              Empowering Young Minds to Live with{" "}
+              Helping Individuals Discover Their Identity and Live with{" "}
               <span className="relative">
                 Purpose
                 <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 12" fill="none">
@@ -57,7 +59,7 @@ const Index = () => {
               "Everything Starts and Ends With Purpose."
             </p>
             <p className="text-primary-foreground/75 text-base md:text-lg mb-10 max-w-xl leading-relaxed">
-              MeaningMatters Network is committed to nurturing spiritual depth, moral integrity, and academic excellence in the next generation.
+              MeaningMatters Network (MMN) is committed to helping individuals discover their identity, unlock their potential, and live purposeful, impactful lives.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link to="/get-involved">
@@ -66,12 +68,12 @@ const Index = () => {
                 </Button>
               </Link>
               <Link to="/events">
-                <Button size="lg" variant="outline" className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 rounded-xl backdrop-blur-sm">
+                <Button size="lg" className="border-2 border-primary-foreground/60 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold backdrop-blur-sm">
                   Upcoming Events
                 </Button>
               </Link>
-              <a href="https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" variant="outline" className="border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground/10 rounded-xl backdrop-blur-sm">
+              <a href={WHATSAPP_COMMUNITY} target="_blank" rel="noopener noreferrer">
+                <Button size="lg" className="border-2 border-primary-foreground/60 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold backdrop-blur-sm">
                   Join WhatsApp Community
                 </Button>
               </a>
@@ -90,7 +92,7 @@ const Index = () => {
                 A Network Built on Purpose
               </h2>
               <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                MeaningMatters Network (MMN) is a non-governmental organization dedicated to empowering young individuals spiritually, morally, and academically. Through our workshops, seminars, mentorship programs, and leadership initiatives, we help youth discover and live out their purpose.
+                MeaningMatters Network (MMN) is a non-governmental organization committed to raising purpose-driven individuals by empowering them spiritually, morally, intellectually, and socially to discover, develop, and fulfill their purpose. Through our workshops, seminars, mentorship programs, and leadership initiatives, we help individuals discover and live out their purpose.
               </p>
               <Link to="/about">
                 <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-xl font-semibold px-6">
@@ -110,15 +112,12 @@ const Index = () => {
               <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-3">What We Do</p>
               <h2 className="font-heading text-3xl md:text-4xl font-bold mb-3 tracking-tight">Our Programs</h2>
               <p className="text-muted-foreground max-w-lg mx-auto">
-                Comprehensive programs designed to empower youth in every dimension of their lives.
+                Comprehensive programs designed to empower individuals in every dimension of their lives.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {programs.map((p, i) => (
-                <div
-                  key={i}
-                  className="bg-card rounded-2xl p-7 shadow-card hover:shadow-elevated transition-all duration-300 border group hover:-translate-y-1"
-                >
+                <div key={i} className="bg-card rounded-2xl p-7 shadow-card hover:shadow-elevated transition-all duration-300 border group hover:-translate-y-1">
                   <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-5 group-hover:shadow-glow transition-shadow">
                     <p.icon className="h-6 w-6 text-primary-foreground" />
                   </div>
@@ -153,8 +152,8 @@ const Index = () => {
           </SectionReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { end: 5000, label: "Youths Empowered" },
-              { end: 120, label: "Workshops Held" },
+              { end: 5000, label: "Individuals Empowered" },
+              { end: 120, label: "Programs Held" },
               { end: 250, label: "Mentors Engaged" },
               { end: 40, label: "Communities Reached" },
             ].map((item, i) => (
@@ -202,15 +201,15 @@ const Index = () => {
               </div>
               <div className="relative z-10">
                 <h2 className="font-heading text-3xl md:text-4xl font-bold text-primary-foreground mb-4 tracking-tight">
-                  Be Part of a Purpose-Driven Generation
+                  Be Part of a Purpose-Driven Movement
                 </h2>
                 <p className="text-primary-foreground/75 mb-10 max-w-lg mx-auto leading-relaxed">
-                  Join thousands of young people discovering their purpose through our programs and community.
+                  Join thousands of individuals discovering their purpose through our programs and community.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <Link to="/get-involved">
                     <Button size="lg" className="bg-primary-foreground text-foreground hover:bg-primary-foreground/90 font-bold rounded-xl px-7 shadow-elevated">
-                      Volunteer
+                      Become a Member
                     </Button>
                   </Link>
                   <Link to="/get-involved">

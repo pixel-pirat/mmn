@@ -1,20 +1,21 @@
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
-import { Heart, BookOpen, Award, Users, Shield, Eye, Target } from "lucide-react";
+import { Heart, Award, Users, Shield, Eye, Target, Star, CheckCircle } from "lucide-react";
 import { useSEO } from "@/lib/seo";
 
 const values = [
-  { icon: Heart, title: "Spiritual Growth", desc: "Nurturing inner depth and connection to purpose." },
-  { icon: Award, title: "Moral Excellence", desc: "Building character rooted in integrity and ethics." },
-  { icon: BookOpen, title: "Academic Development", desc: "Promoting lifelong learning and intellectual growth." },
-  { icon: Users, title: "Leadership", desc: "Equipping youth to lead with vision and compassion." },
-  { icon: Shield, title: "Integrity", desc: "Living authentically and standing for truth." },
+  { icon: Shield, title: "Integrity", desc: "Acting with honesty, transparency, and strong moral principles at all times." },
+  { icon: Star, title: "Self-Discipline", desc: "Practicing self-control, consistency, and focus in pursuit of excellence." },
+  { icon: CheckCircle, title: "Diligence", desc: "Applying persistent and careful effort in all tasks and responsibilities." },
+  { icon: Award, title: "Responsibility", desc: "Being accountable for one's actions and obligations within MMN and beyond." },
+  { icon: Heart, title: "Excellence", desc: "Striving to exceed expectations and deliver outstanding results." },
+  { icon: Users, title: "Valuing People", desc: "Recognizing the inherent worth, dignity, and potential of every individual." },
 ];
 
 const About = () => {
   useSEO({
     title: "About Us",
-    description: "Learn about MeaningMatters Network — our story, mission, vision, and the values driving youth empowerment across Africa.",
+    description: "Learn about MeaningMatters Network — our story, mission, vision, and the values driving purpose-driven living.",
   });
 
   return (
@@ -37,10 +38,10 @@ const About = () => {
           <div className="container max-w-3xl">
             <h2 className="font-heading text-3xl font-bold mb-6">Our Story</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              MeaningMatters Network was founded with a singular conviction: that every young person has the potential to live a life of profound purpose and impact. Born from a desire to see the next generation equipped spiritually, morally, and academically, MMN has grown from a small community initiative into a movement touching thousands of lives.
+              MeaningMatters Network was founded with a singular conviction: that every person has the potential to live a life of profound purpose and impact. Born from a desire to see this generation — and the next — equipped spiritually, morally, and intellectually for purposeful living, MMN has grown from a small community initiative into a movement touching millions of lives.
             </p>
             <p className="text-muted-foreground leading-relaxed">
-              Our journey began when a group of dedicated mentors and educators recognized the growing need for holistic youth development — programs that go beyond academics to nurture the whole person. Today, we continue that mission with unwavering commitment.
+              Our journey began when a group of dedicated mentors and educators recognized the growing need for holistic development — programs that go beyond the surface to nurture the whole person. Today, we continue that mission with unwavering commitment.
             </p>
           </div>
         </section>
@@ -57,7 +58,7 @@ const About = () => {
                 </div>
                 <h3 className="font-heading text-2xl font-bold mb-3">Our Vision</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  A generation of young leaders who live purposefully, lead with integrity, and transform their communities through spiritual depth, moral excellence, and academic achievement.
+                  To cultivate a world where individuals live with purpose, meaning, and impact.
                 </p>
               </div>
             </SectionReveal>
@@ -68,7 +69,7 @@ const About = () => {
                 </div>
                 <h3 className="font-heading text-2xl font-bold mb-3">Our Mission</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  To empower young individuals through workshops, seminars, webinars, mentorship programs, and leadership development initiatives that foster spiritual growth, moral integrity, and academic excellence.
+                  To help individuals discover their purpose, develop their gifts, and unleash their full potential for meaningful and impactful living.
                 </p>
               </div>
             </SectionReveal>
@@ -81,14 +82,16 @@ const About = () => {
         <section className="py-20">
           <div className="container">
             <h2 className="font-heading text-3xl font-bold text-center mb-12">Core Values</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
               {values.map((v, i) => (
-                <div key={i} className="text-center p-6 bg-card rounded-xl shadow-card border">
-                  <div className="w-12 h-12 rounded-full gradient-primary flex items-center justify-center mx-auto mb-3">
+                <div key={i} className="p-6 bg-card rounded-xl shadow-card border flex gap-4">
+                  <div className="w-11 h-11 rounded-full gradient-primary flex items-center justify-center shrink-0">
                     <v.icon className="h-5 w-5 text-primary-foreground" />
                   </div>
-                  <h4 className="font-heading font-semibold text-sm mb-2">{v.title}</h4>
-                  <p className="text-muted-foreground text-xs">{v.desc}</p>
+                  <div>
+                    <h4 className="font-heading font-semibold mb-1">{v.title}</h4>
+                    <p className="text-muted-foreground text-sm">{v.desc}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -102,7 +105,7 @@ const About = () => {
           <div className="container max-w-3xl text-center">
             <h2 className="font-heading text-3xl font-bold mb-6">Organizational Structure</h2>
             <p className="text-muted-foreground leading-relaxed">
-              MMN operates with a lean, purpose-driven structure led by our Board of Directors, an Executive Team, and supported by an Advisory Council of industry professionals. Our volunteers and mentors form the backbone of our on-ground operations, ensuring every program reaches the youth who need it most.
+              MMN operates with a lean, purpose-driven structure led by our Board of Directors and an Executive Team. Our volunteers and mentors form the backbone of our on-ground operations, ensuring every program reaches the individuals who need it most.
             </p>
           </div>
         </section>

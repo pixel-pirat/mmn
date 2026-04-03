@@ -7,41 +7,46 @@ import { useSEO } from "@/lib/seo";
 
 const programs = [
   {
-    icon: BookOpen, title: "Workshops",
-    desc: "Interactive, hands-on sessions that tackle real-life challenges facing young people today — from spiritual foundations to practical life skills.",
-    objectives: ["Build practical life skills", "Deepen spiritual understanding", "Foster peer connections"],
-    audience: "Youth ages 15–30",
+    icon: BookOpen,
+    title: "Workshops",
+    desc: "Interactive sessions on purpose discovery and personal development.",
+    objectives: ["Facilitate purpose discovery", "Build practical life skills", "Foster meaningful peer connections"],
+    audience: "Open to all individuals",
   },
   {
-    icon: Users, title: "Seminars",
-    desc: "Expert-led presentations and panel discussions on topics ranging from moral excellence to career development.",
-    objectives: ["Expose youth to expert perspectives", "Encourage critical thinking", "Inspire academic pursuit"],
-    audience: "Students, young professionals",
+    icon: Users,
+    title: "Seminars",
+    desc: "Expert-led presentations and panel discussions focused on purpose discovery, personal growth, and moral excellence.",
+    objectives: ["Expose individuals to expert perspectives", "Encourage critical thinking", "Inspire personal growth and purposeful action"],
+    audience: "Students, young professionals, and all individuals",
   },
   {
-    icon: Video, title: "Webinars",
-    desc: "Virtual learning experiences that connect youth across geographies for shared growth and inspiration.",
-    objectives: ["Increase accessibility", "Enable global participation", "Deliver timely content"],
-    audience: "Global youth community",
+    icon: Video,
+    title: "Webinars",
+    desc: "Virtual learning experiences connecting individuals across communities for shared growth and inspiration.",
+    objectives: ["Increase accessibility", "Enable global participation", "Deliver timely, relevant content"],
+    audience: "Global community",
   },
   {
-    icon: Heart, title: "Mentorship Programs",
-    desc: "Structured one-on-one and group mentorship that pairs youth with experienced professionals and leaders.",
-    objectives: ["Provide personalized guidance", "Build long-term relationships", "Accelerate personal growth"],
-    audience: "Youth seeking personal development",
+    icon: Heart,
+    title: "Mentorship Programs",
+    desc: "Structured one-on-one and group mentorship that pairs individuals with experienced leaders and professionals.",
+    objectives: ["Provide personalized guidance", "Build long-term purposeful relationships", "Accelerate personal growth"],
+    audience: "Individuals seeking personal development",
   },
   {
-    icon: Lightbulb, title: "Leadership Development",
-    desc: "Intensive leadership training programs that equip the next generation to lead with vision, integrity, and impact.",
-    objectives: ["Develop leadership competencies", "Build confidence", "Create community impact"],
-    audience: "Emerging young leaders",
+    icon: Lightbulb,
+    title: "Leadership Development",
+    desc: "Intensive leadership training programs that equip individuals to lead with vision, integrity, and lasting impact.",
+    objectives: ["Develop leadership competencies", "Build confidence and character", "Create community impact"],
+    audience: "Emerging leaders",
   },
 ];
 
 const Programs = () => {
   useSEO({
     title: "Our Programs",
-    description: "Explore MMN's workshops, seminars, webinars, mentorship programs, and leadership development initiatives for youth.",
+    description: "Explore MMN's workshops, seminars, webinars, mentorship programs, and leadership development initiatives.",
   });
 
   return (
