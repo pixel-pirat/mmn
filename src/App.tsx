@@ -16,6 +16,7 @@ import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import Challenges from "./pages/Challenges";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/get-involved" element={<GetInvolved />} />
           <Route path="/gallery" element={<Gallery />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/challenges" element={<Challenges />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
