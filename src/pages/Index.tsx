@@ -21,7 +21,7 @@ const testimonials = [
   { quote: "Partnering with MMN has been one of the most impactful decisions for our organization. Their dedication is unmatched.", name: "Sarah M.", role: "Community Partner" },
 ];
 
-const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK";
+const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/CJUWzgnSDbbCpGYwSF1kMd";
 
 const Index = () => {
   useSEO({

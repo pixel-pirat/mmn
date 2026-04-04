@@ -10,7 +10,7 @@ const SOCIAL_LINKS = {
   facebook: "https://facebook.com/meaningmattersnetwork",
   instagram: "https://instagram.com/meaningmattersnetwork",
   youtube: "https://youtube.com/@meaningmattersnetwork",
-  whatsapp: "https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK",
+  whatsapp: "https://chat.whatsapp.com/CJUWzgnSDbbCpGYwSF1kMd",
 };
 
 const Footer = () => {

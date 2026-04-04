@@ -1,6 +1,6 @@
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/REPLACE_WITH_GROUP_LINK";
+const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/CJUWzgnSDbbCpGYwSF1kMd";
 
 const WhatsAppButton = () => (
   <a
