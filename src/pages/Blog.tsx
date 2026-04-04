@@ -16,7 +16,9 @@ const Blog = () => {
   const [activeCategory, setActiveCategory] = useState("All");
 
   const filtered = blogPosts.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || p.excerpt.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch =
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
+      p.excerpt.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = activeCategory === "All" || p.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
@@ -51,7 +53,9 @@ const Blog = () => {
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeCategory === cat ? "gradient-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-accent"
+                    activeCategory === cat
+                      ? "gradient-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-accent"
                   }`}
                 >
                   {cat}
@@ -61,18 +65,24 @@ const Blog = () => {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">No articles found. Try a different search or category.</div>
+            <div className="text-center py-20 text-muted-foreground">
+              No articles found. Try a different search or category.
+            </div>
           ) : (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((p, i) => (
+              {filtered.map(p => (
                 <SectionReveal key={p.slug}>
                   <article className="bg-card rounded-xl overflow-hidden shadow-card border group hover:shadow-elevated transition-shadow h-full flex flex-col">
                     <div className="h-40 gradient-primary flex items-center justify-center">
-                      <span className="text-primary-foreground/70 font-heading text-sm font-medium px-4 text-center">{p.category}</span>
+                      <span className="text-primary-foreground/70 font-heading text-sm font-medium px-4 text-center">
+                        {p.category}
+                      </span>
                     </div>
                     <div className="p-5 flex flex-col flex-1">
                       <span className="text-xs text-muted-foreground">{p.date}</span>
-                      <h3 className="font-heading font-semibold mt-1 mb-2 group-hover:text-primary transition-colors">{p.title}</h3>
+                      <h3 className="font-heading font-semibold mt-1 mb-2 group-hover:text-primary transition-colors">
+                        {p.title}
+                      </h3>
                       <p className="text-muted-foreground text-sm mb-4 flex-1">{p.excerpt}</p>
                       <Link
                         to={`/blog/${p.slug}`}

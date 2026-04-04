@@ -67,7 +67,7 @@ const Index = () => {
                   Join the Movement <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link to="/events">
+              <Link to="/programs">
                 <Button size="lg" className="border-2 border-primary-foreground/60 bg-primary-foreground/10 text-primary-foreground hover:bg-primary-foreground/20 rounded-xl font-semibold backdrop-blur-sm">
                   Upcoming Events
                 </Button>

@@ -108,8 +108,7 @@ const Footer = () => {
             <nav className="flex flex-col gap-2.5 text-sm text-primary-foreground/50">
               {[
                 { to: "/about", label: "About Us" },
-                { to: "/programs", label: "Programs" },
-                { to: "/events", label: "Events" },
+                { to: "/programs", label: "Programs & Events" },
                 { to: "/blog", label: "Blog" },
                 { to: "/impact", label: "Impact" },
                 { to: "/gallery", label: "Gallery" },
