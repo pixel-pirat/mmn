@@ -113,6 +113,7 @@ const Footer = () => {
                 { to: "/blog", label: "Blog" },
                 { to: "/impact", label: "Impact" },
                 { to: "/gallery", label: "Gallery" },
+                { to: "/store", label: "Bookstore" },
               ].map((link) => (
                 <Link key={link.to} to={link.to} className="hover:text-primary-foreground transition-colors">
                   {link.label}

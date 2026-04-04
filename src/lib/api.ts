@@ -162,3 +162,65 @@ export interface RecentActivity {
   messages: Submission[];
   registrations: Submission[];
 }
+
+// ── Store ────────────────────────────────────────────────────
+
+export const getBooks = () =>
+  fetch(`${BASE}/api/books`).then(r => r.json()) as Promise<StoreBook[]>;
+
+export const createBook = (token: string, data: Partial<StoreBook>) =>
+  patch<StoreBook>("/api/books", token, data as Record<string, string>);
+
+export const adminCreateBook = async (token: string, data: Partial<StoreBook>): Promise<StoreBook> => {
+  const res = await fetch(`${BASE}/api/books`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error ?? "Failed to create book");
+  return json;
+};
+
+export const adminUpdateBook = (id: number, token: string, data: Partial<StoreBook>) =>
+  patch<StoreBook>(`/api/books/${id}`, token, data as Record<string, string>);
+
+export const adminDeleteBook = (id: number, token: string) => del(`/api/books/${id}`, token);
+
+export const getOrders = (token: string) =>
+  get<Order[]>("/api/orders", token);
+
+export const updateOrder = (id: number, token: string, body: Record<string, string>) =>
+  patch<Order>(`/api/orders/${id}`, token, body);
+
+export const placeOrder = (data: {
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  items: { id: number; title: string; qty: number; price: number }[];
+  total: number;
+}) => post<{ message: string; order: Order }>("/api/orders", data as unknown as Record<string, string>);
+
+export interface StoreBook {
+  id: number;
+  title: string;
+  author: string;
+  price: number;
+  category: string;
+  description: string;
+  cover_color: string;
+  in_stock: boolean;
+  created_at?: string;
+}
+
+export interface Order {
+  id: number;
+  customer_name: string;
+  customer_email: string;
+  customer_phone?: string;
+  items: { id: number; title: string; qty: number; price: number }[];
+  total: number;
+  status: string;
+  notes?: string;
+  created_at: string;
+}

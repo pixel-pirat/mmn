@@ -91,3 +91,33 @@ CREATE INDEX IF NOT EXISTS idx_contact_status       ON contact_messages(status);
 CREATE INDEX IF NOT EXISTS idx_newsletter_email     ON newsletter_subscribers(email);
 CREATE INDEX IF NOT EXISTS idx_event_reg_event      ON event_registrations(event_name);
 CREATE INDEX IF NOT EXISTS idx_event_reg_email      ON event_registrations(email);
+
+-- ── Bookstore ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS books (
+  id           SERIAL PRIMARY KEY,
+  title        VARCHAR(255) NOT NULL,
+  author       VARCHAR(255) NOT NULL,
+  price        NUMERIC(10,2) NOT NULL,
+  category     VARCHAR(100),
+  description  TEXT,
+  cover_color  VARCHAR(100) DEFAULT 'from-emerald-500 to-teal-600',
+  in_stock     BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id           SERIAL PRIMARY KEY,
+  customer_name  VARCHAR(120) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(30),
+  items        JSONB NOT NULL,   -- [{id, title, qty, price}]
+  total        NUMERIC(10,2) NOT NULL,
+  status       VARCHAR(30) NOT NULL DEFAULT 'pending', -- pending | paid | fulfilled | cancelled
+  notes        TEXT,
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_books_category ON books(category);
+CREATE INDEX IF NOT EXISTS idx_orders_status  ON orders(status);
+CREATE INDEX IF NOT EXISTS idx_orders_email   ON orders(customer_email);

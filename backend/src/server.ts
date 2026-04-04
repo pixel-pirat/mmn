@@ -12,6 +12,8 @@ import contactRoutes    from "./routes/contact";
 import newsletterRoutes from "./routes/newsletter";
 import eventRoutes      from "./routes/events";
 import dashboardRoutes  from "./routes/dashboard";
+import bookRoutes       from "./routes/books";
+import orderRoutes      from "./routes/orders";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -56,6 +58,8 @@ app.use("/api/contact",    contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/events",     eventRoutes);
 app.use("/api/dashboard",  dashboardRoutes);
+app.use("/api/books",      bookRoutes);
+app.use("/api/orders",     orderRoutes);
 
 // ── 404 ──────────────────────────────────────────────────────
 app.use((_req, res) => {
