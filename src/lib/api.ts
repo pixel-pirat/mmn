@@ -155,6 +155,9 @@ export interface DashboardStats {
   unread_messages: number;
   subscribers: number;
   event_registrations: number;
+  books?: number;
+  orders?: number;
+  pending_orders?: number;
 }
 
 export interface RecentActivity {

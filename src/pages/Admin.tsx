@@ -3,19 +3,21 @@ import { useNavigate } from "react-router-dom";
 import {
   Users, Heart, Handshake, Mail, Bell, Calendar,
   LogOut, LayoutDashboard, ChevronDown, Loader2, Trash2,
-  BookOpen, ShoppingBag, Plus, X, Edit2,
+  BookOpen, ShoppingBag, Plus, X, Edit2, Search, RefreshCw,
+  TrendingUp, Eye, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
-  adminLogin, getMe, getDashboardStats,
+  adminLogin, getMe, getDashboardStats, getRecentActivity,
   getVolunteers, getMentors, getPartners, getMessages,
   getSubscribers, getEventRegistrations,
   updateVolunteer, updateMentor, updatePartner, updateMessage,
   deleteVolunteer, deleteMentor, deletePartner, deleteMessage,
   getBooks, adminCreateBook, adminUpdateBook, adminDeleteBook,
   getOrders, updateOrder,
-  type AdminUser, type DashboardStats, type Submission, type Subscriber,
+  type AdminUser, type DashboardStats, type RecentActivity,
+  type Submission, type Subscriber,
   type StoreBook, type Order,
 } from "@/lib/api";
 import { useSEO } from "@/lib/seo";
@@ -72,17 +74,31 @@ function LoginScreen({ onLogin }: { onLogin: (token: string, user: AdminUser) =>
   );
 }
 
-function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: number; color: string }) {
+function StatCard({
+  icon: Icon, label, value, color, sub, onClick,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: number | string;
+  color: string;
+  sub?: string;
+  onClick?: () => void;
+}) {
   return (
-    <div className="bg-card rounded-xl p-5 border shadow-card flex items-center gap-4">
+    <button
+      onClick={onClick}
+      className={`bg-card rounded-xl p-5 border shadow-card flex items-center gap-4 text-left w-full transition-all ${onClick ? "hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer" : "cursor-default"}`}
+    >
       <div className={`w-11 h-11 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
         <Icon className="h-5 w-5 text-white" />
       </div>
-      <div>
-        <p className="text-2xl font-heading font-bold">{value.toLocaleString()}</p>
+      <div className="min-w-0">
+        <p className="text-2xl font-heading font-bold">{typeof value === "number" ? value.toLocaleString() : value}</p>
         <p className="text-muted-foreground text-xs">{label}</p>
+        {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
       </div>
-    </div>
+      {onClick && <ChevronRight className="h-4 w-4 text-muted-foreground ml-auto shrink-0" />}
+    </button>
   );
 }
 
@@ -111,53 +127,144 @@ function StatusBadge({ status }: { status: string }) {
 
 type TableAction = { label: string; value: string };
 
-function SubmissionsTable({ rows, columns, statusActions, onStatusChange, onDelete, loading }: {
+// ── Message Detail Modal ─────────────────────────────────────
+function MessageModal({ row, onClose }: { row: Submission; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-card rounded-2xl p-6 shadow-elevated border w-full max-w-lg" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-heading font-bold text-lg">Message</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
+        </div>
+        <div className="space-y-3 text-sm">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">From</p>
+              <p className="font-medium">{row.name ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Email</p>
+              <p className="font-medium">{row.email ?? "—"}</p>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-0.5">Subject</p>
+            <p className="font-medium">{row.subject ?? "—"}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground mb-0.5">Message</p>
+            <p className="bg-muted rounded-lg p-3 text-sm leading-relaxed whitespace-pre-wrap">{String(row.message ?? row.notes ?? "No message content.")}</p>
+          </div>
+          <div className="flex items-center justify-between pt-1">
+            <StatusBadge status={row.status} />
+            <p className="text-xs text-muted-foreground">{new Date(row.created_at).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SubmissionsTable({ rows, columns, statusActions, onStatusChange, onDelete, loading, searchable = true }: {
   rows: Submission[];
   columns: { key: string; label: string }[];
   statusActions: TableAction[];
   onStatusChange: (id: number, status: string) => void;
   onDelete: (id: number) => void;
   loading: boolean;
+  searchable?: boolean;
 }) {
+  const [query, setQuery] = useState("");
+  const [viewMsg, setViewMsg] = useState<Submission | null>(null);
+
+  const filtered = query.trim()
+    ? rows.filter(r =>
+        columns.some(c => String(r[c.key] ?? "").toLowerCase().includes(query.toLowerCase()))
+      )
+    : rows;
+
   if (loading) return <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div>;
-  if (!rows.length) return <div className="py-12 text-center text-muted-foreground text-sm">No submissions yet.</div>;
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b">
-            {columns.map(c => <th key={c.key} className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{c.label}</th>)}
-            <th className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
-            <th className="py-3 px-3" />
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(row => (
-            <tr key={row.id} className="border-b hover:bg-muted/40 transition-colors">
-              {columns.map(c => <td key={c.key} className="py-3 px-3 max-w-[200px] truncate">{String(row[c.key] ?? "—")}</td>)}
-              <td className="py-3 px-3">
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={row.status} />
-                  <div className="relative group">
-                    <button className="p-1 rounded hover:bg-muted transition-colors"><ChevronDown className="h-3 w-3 text-muted-foreground" /></button>
-                    <div className="absolute left-0 top-6 z-10 bg-card border rounded-lg shadow-elevated py-1 hidden group-hover:block min-w-[120px]">
-                      {statusActions.map(a => (
-                        <button key={a.value} onClick={() => onStatusChange(row.id, a.value)} className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors">{a.label}</button>
-                      ))}
+    <>
+      {searchable && (
+        <div className="p-4 border-b">
+          <div className="relative max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search…"
+              className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border bg-background focus:ring-2 focus:ring-primary focus:outline-none"
+            />
+          </div>
+        </div>
+      )}
+      {!filtered.length ? (
+        <div className="py-12 text-center text-muted-foreground text-sm">
+          {query ? "No results match your search." : "No submissions yet."}
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b">
+                {columns.map(c => <th key={c.key} className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{c.label}</th>)}
+                <th className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                <th className="py-3 px-3" />
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(row => (
+                <tr key={row.id} className="border-b hover:bg-muted/40 transition-colors">
+                  {columns.map(c => (
+                    <td key={c.key} className="py-3 px-3 max-w-[200px] truncate">
+                      {c.key === "subject" ? (
+                        <button
+                          onClick={() => setViewMsg(row)}
+                          className="text-primary hover:underline text-left truncate max-w-[180px] block"
+                          title={String(row[c.key] ?? "—")}
+                        >
+                          {String(row[c.key] ?? "—")}
+                        </button>
+                      ) : (
+                        String(row[c.key] ?? "—")
+                      )}
+                    </td>
+                  ))}
+                  <td className="py-3 px-3">
+                    <div className="flex items-center gap-2">
+                      <StatusBadge status={row.status} />
+                      <div className="relative group">
+                        <button className="p-1 rounded hover:bg-muted transition-colors"><ChevronDown className="h-3 w-3 text-muted-foreground" /></button>
+                        <div className="absolute left-0 top-6 z-10 bg-card border rounded-lg shadow-elevated py-1 hidden group-hover:block min-w-[120px]">
+                          {statusActions.map(a => (
+                            <button key={a.value} onClick={() => onStatusChange(row.id, a.value)} className="w-full text-left px-3 py-1.5 text-xs hover:bg-muted transition-colors">{a.label}</button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </td>
-              <td className="py-3 px-3">
-                <button onClick={() => onDelete(row.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete">
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                  </td>
+                  <td className="py-3 px-3">
+                    <div className="flex items-center gap-1">
+                      {row.subject !== undefined && (
+                        <button onClick={() => setViewMsg(row)} className="p-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" aria-label="View">
+                          <Eye className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      <button onClick={() => onDelete(row.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {viewMsg && <MessageModal row={viewMsg} onClose={() => setViewMsg(null)} />}
+    </>
   );
 }
 
@@ -273,7 +380,8 @@ function BookModal({ book, token, onClose, onSaved }: {
 function BooksSection({ token }: { token: string }) {
   const [books, setBooks] = useState<StoreBook[]>([]);
   const [loading, setLoading] = useState(true);
-  const [modalBook, setModalBook] = useState<StoreBook | null | undefined>(undefined); // undefined = closed
+  const [query, setQuery] = useState("");
+  const [modalBook, setModalBook] = useState<StoreBook | null | undefined>(undefined);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -287,6 +395,10 @@ function BooksSection({ token }: { token: string }) {
     try { await adminDeleteBook(id, token); toast.success("Deleted."); load(); } catch { toast.error("Delete failed."); }
   };
 
+  const filtered = query.trim()
+    ? books.filter(b => b.title.toLowerCase().includes(query.toLowerCase()) || b.author.toLowerCase().includes(query.toLowerCase()) || b.category?.toLowerCase().includes(query.toLowerCase()))
+    : books;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -295,34 +407,46 @@ function BooksSection({ token }: { token: string }) {
           <Plus className="h-4 w-4 mr-1" /> Add Book
         </Button>
       </div>
-      {loading ? <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div> : (
-        <div className="overflow-x-auto bg-card rounded-xl border shadow-card">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b">
-              {["Title", "Author", "Price", "Category", "Stock", ""].map(h => (
-                <th key={h} className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {books.map(b => (
-                <tr key={b.id} className="border-b hover:bg-muted/40 transition-colors">
-                  <td className="py-3 px-3 font-medium max-w-[180px] truncate">{b.title}</td>
-                  <td className="py-3 px-3 text-muted-foreground">{b.author}</td>
-                  <td className="py-3 px-3">GH₵{b.price}</td>
-                  <td className="py-3 px-3 text-muted-foreground">{b.category}</td>
-                  <td className="py-3 px-3"><StatusBadge status={b.in_stock ? "active" : "cancelled"} /></td>
-                  <td className="py-3 px-3">
-                    <div className="flex gap-1">
-                      <button onClick={() => setModalBook(b)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => handleDelete(b.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="bg-card rounded-xl border shadow-card overflow-hidden">
+        <div className="p-4 border-b">
+          <div className="relative max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search books…" className="w-full pl-8 pr-3 py-2 text-sm rounded-lg border bg-background focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
         </div>
-      )}
+        {loading ? (
+          <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div>
+        ) : !filtered.length ? (
+          <div className="py-12 text-center text-muted-foreground text-sm">{query ? "No books match your search." : "No books yet."}</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b">
+                {["Title", "Author", "Price", "Category", "Stock", ""].map(h => (
+                  <th key={h} className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {filtered.map(b => (
+                  <tr key={b.id} className="border-b hover:bg-muted/40 transition-colors">
+                    <td className="py-3 px-3 font-medium max-w-[180px] truncate">{b.title}</td>
+                    <td className="py-3 px-3 text-muted-foreground">{b.author}</td>
+                    <td className="py-3 px-3">GH₵{b.price}</td>
+                    <td className="py-3 px-3 text-muted-foreground">{b.category}</td>
+                    <td className="py-3 px-3"><StatusBadge status={b.in_stock ? "active" : "cancelled"} /></td>
+                    <td className="py-3 px-3">
+                      <div className="flex gap-1">
+                        <button onClick={() => setModalBook(b)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
+                        <button onClick={() => handleDelete(b.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
       {modalBook !== undefined && (
         <BookModal book={modalBook} token={token} onClose={() => setModalBook(undefined)} onSaved={load} />
       )}
@@ -334,6 +458,8 @@ function BooksSection({ token }: { token: string }) {
 function OrdersSection({ token }: { token: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -346,14 +472,35 @@ function OrdersSection({ token }: { token: string }) {
     try { await updateOrder(id, token, { status }); toast.success("Updated."); load(); } catch { toast.error("Update failed."); }
   };
 
+  const filtered = orders.filter(o => {
+    const matchesQuery = !query.trim() || o.customer_name.toLowerCase().includes(query.toLowerCase()) || o.customer_email.toLowerCase().includes(query.toLowerCase());
+    const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+    return matchesQuery && matchesStatus;
+  });
+
   if (loading) return <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div>;
 
   return (
     <div className="bg-card rounded-xl border shadow-card overflow-hidden">
-      <div className="p-5 border-b flex items-center justify-between">
+      <div className="p-5 border-b flex flex-wrap items-center gap-3 justify-between">
         <h2 className="font-heading font-semibold">Orders ({orders.length})</h2>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search…" className="pl-8 pr-3 py-1.5 text-sm rounded-lg border bg-background focus:ring-2 focus:ring-primary focus:outline-none w-40" />
+          </div>
+          <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="text-sm rounded-lg border bg-background px-2 py-1.5 focus:ring-2 focus:ring-primary focus:outline-none">
+            <option value="all">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="fulfilled">Fulfilled</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
       </div>
-      {!orders.length ? <div className="py-12 text-center text-muted-foreground text-sm">No orders yet.</div> : (
+      {!filtered.length ? (
+        <div className="py-12 text-center text-muted-foreground text-sm">{query || statusFilter !== "all" ? "No orders match your filters." : "No orders yet."}</div>
+      ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead><tr className="border-b">
@@ -362,7 +509,7 @@ function OrdersSection({ token }: { token: string }) {
               ))}
             </tr></thead>
             <tbody>
-              {orders.map(o => (
+              {filtered.map(o => (
                 <tr key={o.id} className="border-b hover:bg-muted/40 transition-colors">
                   <td className="py-3 px-3 font-medium">{o.customer_name}</td>
                   <td className="py-3 px-3 text-muted-foreground max-w-[160px] truncate">{o.customer_email}</td>
@@ -393,6 +540,141 @@ function OrdersSection({ token }: { token: string }) {
   );
 }
 
+// ── Overview Section ─────────────────────────────────────────
+function OverviewSection({
+  stats,
+  recentActivity,
+  loadingRecent,
+  onNavigate,
+  onRefresh,
+}: {
+  stats: DashboardStats | null;
+  recentActivity: RecentActivity | null;
+  loadingRecent: boolean;
+  onNavigate: (s: Section) => void;
+  onRefresh: () => void;
+}) {
+  const pendingVolunteers = recentActivity?.volunteers.filter(v => v.status === "pending").length ?? 0;
+  const unreadMessages = recentActivity?.messages.filter(m => m.status === "unread").length ?? 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Stats Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-muted-foreground flex items-center gap-1.5"><TrendingUp className="h-4 w-4" /> Platform Overview</p>
+          <button onClick={onRefresh} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted">
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          </button>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard icon={Users}       label="Volunteers"      value={stats?.volunteers ?? 0}          color="bg-emerald-500" sub={pendingVolunteers > 0 ? `${pendingVolunteers} pending` : undefined} onClick={() => onNavigate("volunteers")} />
+          <StatCard icon={Heart}       label="Mentors"         value={stats?.mentors ?? 0}             color="bg-pink-500"    onClick={() => onNavigate("mentors")} />
+          <StatCard icon={Handshake}   label="Partners"        value={stats?.partners ?? 0}            color="bg-blue-500"    onClick={() => onNavigate("partners")} />
+          <StatCard icon={Mail}        label="Unread Messages" value={stats?.unread_messages ?? 0}     color="bg-amber-500"   sub={unreadMessages > 0 ? "needs attention" : undefined} onClick={() => onNavigate("messages")} />
+          <StatCard icon={Bell}        label="Subscribers"     value={stats?.subscribers ?? 0}         color="bg-violet-500"  onClick={() => onNavigate("subscribers")} />
+          <StatCard icon={Calendar}    label="Event Regs"      value={stats?.event_registrations ?? 0} color="bg-teal-500"    onClick={() => onNavigate("events")} />
+          <StatCard icon={BookOpen}    label="Books"           value={stats?.books ?? "—"}             color="bg-indigo-500"  onClick={() => onNavigate("books")} />
+          <StatCard icon={ShoppingBag} label="Orders"          value={stats?.orders ?? "—"}            color="bg-orange-500"  sub={stats?.pending_orders ? `${stats.pending_orders} pending` : undefined} onClick={() => onNavigate("orders")} />
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {/* Recent Volunteers */}
+        <div className="bg-card rounded-xl border shadow-card overflow-hidden">
+          <div className="p-4 border-b flex items-center justify-between">
+            <h3 className="font-heading font-semibold text-sm">Recent Volunteers</h3>
+            <button onClick={() => onNavigate("volunteers")} className="text-xs text-primary hover:underline">View all</button>
+          </div>
+          {loadingRecent ? (
+            <div className="py-8 text-center"><Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" /></div>
+          ) : !recentActivity?.volunteers.length ? (
+            <div className="py-8 text-center text-muted-foreground text-xs">No recent volunteers.</div>
+          ) : (
+            <div className="divide-y">
+              {recentActivity.volunteers.slice(0, 5).map(v => (
+                <div key={v.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{v.name ?? "—"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{v.email ?? "—"}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <StatusBadge status={v.status} />
+                    <span className="text-[10px] text-muted-foreground">{new Date(v.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Messages */}
+        <div className="bg-card rounded-xl border shadow-card overflow-hidden">
+          <div className="p-4 border-b flex items-center justify-between">
+            <h3 className="font-heading font-semibold text-sm">Recent Messages</h3>
+            <button onClick={() => onNavigate("messages")} className="text-xs text-primary hover:underline">View all</button>
+          </div>
+          {loadingRecent ? (
+            <div className="py-8 text-center"><Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" /></div>
+          ) : !recentActivity?.messages.length ? (
+            <div className="py-8 text-center text-muted-foreground text-xs">No recent messages.</div>
+          ) : (
+            <div className="divide-y">
+              {recentActivity.messages.slice(0, 5).map(m => (
+                <div key={m.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{m.name ?? "—"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{m.subject ?? "No subject"}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <StatusBadge status={m.status} />
+                    <span className="text-[10px] text-muted-foreground">{new Date(m.created_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Event Registrations */}
+        <div className="bg-card rounded-xl border shadow-card overflow-hidden md:col-span-2">
+          <div className="p-4 border-b flex items-center justify-between">
+            <h3 className="font-heading font-semibold text-sm">Recent Event Registrations</h3>
+            <button onClick={() => onNavigate("events")} className="text-xs text-primary hover:underline">View all</button>
+          </div>
+          {loadingRecent ? (
+            <div className="py-8 text-center"><Loader2 className="h-5 w-5 animate-spin mx-auto text-muted-foreground" /></div>
+          ) : !recentActivity?.registrations.length ? (
+            <div className="py-8 text-center text-muted-foreground text-xs">No recent registrations.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b">
+                  {["Name", "Email", "Event", "Status", "Date"].map(h => (
+                    <th key={h} className="text-left py-2.5 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
+                  ))}
+                </tr></thead>
+                <tbody>
+                  {recentActivity.registrations.slice(0, 5).map(r => (
+                    <tr key={r.id} className="border-b hover:bg-muted/40 transition-colors">
+                      <td className="py-2.5 px-4 font-medium">{r.name ?? "—"}</td>
+                      <td className="py-2.5 px-4 text-muted-foreground max-w-[160px] truncate">{r.email ?? "—"}</td>
+                      <td className="py-2.5 px-4 text-muted-foreground max-w-[160px] truncate">{r.event_name ?? "—"}</td>
+                      <td className="py-2.5 px-4"><StatusBadge status={r.status} /></td>
+                      <td className="py-2.5 px-4 text-muted-foreground text-xs">{new Date(r.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main Dashboard ───────────────────────────────────────────
 type Section = "dashboard" | "volunteers" | "mentors" | "partners" | "messages" | "subscribers" | "events" | "books" | "orders";
 
@@ -411,11 +693,25 @@ const NAV: { key: Section; label: string; icon: React.ElementType; group?: strin
 function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser; onLogout: () => void }) {
   const [section, setSection] = useState<Section>("dashboard");
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [recentActivity, setRecentActivity] = useState<RecentActivity | null>(null);
+  const [loadingRecent, setLoadingRecent] = useState(false);
   const [data, setData] = useState<Submission[] | Subscriber[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  useEffect(() => { getDashboardStats(token).then(setStats).catch(() => {}); }, [token]);
+  const refreshStats = useCallback(() => {
+    getDashboardStats(token).then(setStats).catch(() => {});
+  }, [token]);
+
+  const refreshRecent = useCallback(async () => {
+    setLoadingRecent(true);
+    try { setRecentActivity(await getRecentActivity(token)); } catch { /* silent */ } finally { setLoadingRecent(false); }
+  }, [token]);
+
+  useEffect(() => {
+    refreshStats();
+    refreshRecent();
+  }, [refreshStats, refreshRecent]);
 
   const loadSection = useCallback(async (s: Section) => {
     if (["dashboard", "books", "orders"].includes(s)) return;
@@ -444,7 +740,8 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
       await updaters[section]?.(id, token, { status });
       toast.success("Status updated.");
       loadSection(section);
-      getDashboardStats(token).then(setStats).catch(() => {});
+      refreshStats();
+      refreshRecent();
     } catch (err) { toast.error((err as Error).message); }
   };
 
@@ -457,7 +754,7 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
       await deleters[section]?.(id, token);
       toast.success("Deleted.");
       loadSection(section);
-      getDashboardStats(token).then(setStats).catch(() => {});
+      refreshStats();
     } catch (err) { toast.error((err as Error).message); }
   };
 
@@ -472,6 +769,13 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
   const currentConfig = SECTION_CONFIG[section];
   const groups = ["People", "Store"];
 
+  const navigate = (s: Section) => {
+    setSection(s);
+    setSidebarOpen(false);
+  };
+
+  const sectionLabel = NAV.find(n => n.key === section)?.label ?? "Overview";
+
   return (
     <div className="min-h-screen flex bg-muted/30">
       <aside className={`fixed inset-y-0 left-0 z-40 w-56 bg-card border-r flex flex-col transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:static lg:flex`}>
@@ -480,7 +784,7 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
           <p className="text-xs text-muted-foreground truncate">{admin.email}</p>
         </div>
         <nav className="flex-1 p-3 space-y-4 overflow-y-auto">
-          <button onClick={() => { setSection("dashboard"); setSidebarOpen(false); }}
+          <button onClick={() => navigate("dashboard")}
             className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${section === "dashboard" ? "gradient-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
             <LayoutDashboard className="h-4 w-4 shrink-0" /> Overview
           </button>
@@ -488,12 +792,15 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
             <div key={group}>
               <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-3 mb-1">{group}</p>
               {NAV.filter(n => n.group === group).map(n => (
-                <button key={n.key} onClick={() => { setSection(n.key); setSidebarOpen(false); }}
+                <button key={n.key} onClick={() => navigate(n.key)}
                   className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${section === n.key ? "gradient-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
                   <n.icon className="h-4 w-4 shrink-0" />
                   {n.label}
-                  {n.key === "messages" && stats?.unread_messages ? (
-                    <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">{stats.unread_messages}</span>
+                  {n.key === "messages" && (stats?.unread_messages ?? 0) > 0 ? (
+                    <span className="ml-auto bg-destructive text-destructive-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full">{stats!.unread_messages}</span>
+                  ) : null}
+                  {n.key === "volunteers" && recentActivity?.volunteers.filter(v => v.status === "pending").length ? (
+                    <span className="ml-auto bg-amber-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{recentActivity.volunteers.filter(v => v.status === "pending").length}</span>
                   ) : null}
                 </button>
               ))}
@@ -513,35 +820,20 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
             <button onClick={() => setSidebarOpen(o => !o)} className="lg:hidden p-1.5 rounded hover:bg-muted transition-colors">
               <LayoutDashboard className="h-5 w-5" />
             </button>
-            <h1 className="font-heading font-bold capitalize">{section === "dashboard" ? "Overview" : section}</h1>
+            <h1 className="font-heading font-bold">{sectionLabel}</h1>
           </div>
           <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {admin.name}</span>
         </header>
 
         <main className="flex-1 p-6 overflow-auto">
           {section === "dashboard" && (
-            <div className="space-y-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard icon={Users}      label="Volunteers"   value={stats?.volunteers ?? 0}          color="bg-emerald-500" />
-                <StatCard icon={Heart}      label="Mentors"      value={stats?.mentors ?? 0}             color="bg-pink-500" />
-                <StatCard icon={Handshake}  label="Partners"     value={stats?.partners ?? 0}            color="bg-blue-500" />
-                <StatCard icon={Mail}       label="Unread Msgs"  value={stats?.unread_messages ?? 0}     color="bg-amber-500" />
-                <StatCard icon={Bell}       label="Subscribers"  value={stats?.subscribers ?? 0}         color="bg-violet-500" />
-                <StatCard icon={Calendar}   label="Event Regs"   value={stats?.event_registrations ?? 0} color="bg-teal-500" />
-                <StatCard icon={BookOpen}   label="Books"        value={0}                               color="bg-indigo-500" />
-                <StatCard icon={ShoppingBag} label="Orders"     value={0}                               color="bg-orange-500" />
-              </div>
-              <div className="bg-card rounded-xl border p-6 shadow-card">
-                <h2 className="font-heading font-semibold mb-4">Quick Actions</h2>
-                <div className="flex flex-wrap gap-2">
-                  {NAV.filter(n => n.key !== "dashboard").map(n => (
-                    <button key={n.key} onClick={() => setSection(n.key)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground text-xs font-medium transition-colors">
-                      <n.icon className="h-3.5 w-3.5" /> {n.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <OverviewSection
+              stats={stats}
+              recentActivity={recentActivity}
+              loadingRecent={loadingRecent}
+              onNavigate={navigate}
+              onRefresh={() => { refreshStats(); refreshRecent(); }}
+            />
           )}
 
           {section === "books" && <BooksSection token={token} />}
@@ -551,7 +843,7 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
             <div className="bg-card rounded-xl border shadow-card overflow-hidden">
               <div className="p-5 border-b flex items-center justify-between">
                 <h2 className="font-heading font-semibold">Newsletter Subscribers</h2>
-                <span className="text-xs text-muted-foreground">{(data as Subscriber[]).length} active</span>
+                <span className="text-xs text-muted-foreground">{(data as Subscriber[]).length} total</span>
               </div>
               {loadingData ? <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div> : (
                 <div className="overflow-x-auto">
@@ -579,10 +871,17 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
           {currentConfig && !["subscribers", "books", "orders"].includes(section) && (
             <div className="bg-card rounded-xl border shadow-card overflow-hidden">
               <div className="p-5 border-b flex items-center justify-between">
-                <h2 className="font-heading font-semibold capitalize">{section}</h2>
+                <h2 className="font-heading font-semibold capitalize">{sectionLabel}</h2>
                 <span className="text-xs text-muted-foreground">{(data as Submission[]).length} total</span>
               </div>
-              <SubmissionsTable rows={data as Submission[]} columns={currentConfig.columns} statusActions={currentConfig.statusActions} onStatusChange={handleStatusChange} onDelete={handleDelete} loading={loadingData} />
+              <SubmissionsTable
+                rows={data as Submission[]}
+                columns={currentConfig.columns}
+                statusActions={currentConfig.statusActions}
+                onStatusChange={handleStatusChange}
+                onDelete={handleDelete}
+                loading={loadingData}
+              />
             </div>
           )}
         </main>
