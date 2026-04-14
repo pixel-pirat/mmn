@@ -212,6 +212,7 @@ export interface StoreBook {
   category: string;
   description: string;
   cover_color: string;
+  cover_image?: string | null;
   in_stock: boolean;
   created_at?: string;
 }

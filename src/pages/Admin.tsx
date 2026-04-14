@@ -4,7 +4,7 @@ import {
   Users, Heart, Handshake, Mail, Bell, Calendar,
   LogOut, LayoutDashboard, ChevronDown, Loader2, Trash2,
   BookOpen, ShoppingBag, Plus, X, Edit2, Search, RefreshCw,
-  TrendingUp, Eye, ChevronRight,
+  TrendingUp, Eye, ChevronRight, Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -293,17 +293,34 @@ function BookModal({ book, token, onClose, onSaved }: {
     category: book?.category ?? "",
     description: book?.description ?? "",
     cover_color: book?.cover_color ?? COVER_OPTIONS[0],
+    cover_image: book?.cover_image ?? "",
     in_stock: book?.in_stock ?? true,
   });
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Image must be under 2MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setForm(f => ({ ...f, cover_image: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = { ...form, price: Number(form.price) };
+      const payload = {
+        ...form,
+        price: Number(form.price),
+        cover_image: form.cover_image || null,
+      };
       if (book) {
         await adminUpdateBook(book.id, token, payload as unknown as Partial<StoreBook>);
         toast.success("Book updated.");
@@ -322,7 +339,7 @@ function BookModal({ book, token, onClose, onSaved }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="bg-card rounded-2xl p-6 shadow-elevated border w-full max-w-lg" onClick={e => e.stopPropagation()}>
+      <div className="bg-card rounded-2xl p-6 shadow-elevated border w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-heading font-bold text-lg">{book ? "Edit Book" : "Add Book"}</h3>
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
@@ -352,17 +369,52 @@ function BookModal({ book, token, onClose, onSaved }: {
             <label className="text-xs font-medium mb-1 block">Description</label>
             <textarea value={form.description} onChange={set("description")} rows={3} placeholder="Short description..." className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none resize-none" />
           </div>
+
+          {/* Cover Image */}
           <div>
-            <label className="text-xs font-medium mb-2 block">Cover Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {COVER_OPTIONS.map(c => (
-                <button key={c} type="button" onClick={() => setForm(f => ({ ...f, cover_color: c }))}
-                  className={`w-8 h-8 rounded-lg bg-gradient-to-br ${c} border-2 transition-all ${form.cover_color === c ? "border-foreground scale-110" : "border-transparent"}`}
-                  aria-label={c}
-                />
-              ))}
+            <label className="text-xs font-medium mb-2 block">Cover Image <span className="text-muted-foreground font-normal">(optional — overrides colour)</span></label>
+            <div className="flex items-start gap-3">
+              {form.cover_image ? (
+                <div className="relative shrink-0">
+                  <img src={form.cover_image} alt="Cover preview" className="w-16 h-20 object-cover rounded-lg border" />
+                  <button
+                    type="button"
+                    onClick={() => setForm(f => ({ ...f, cover_image: "" }))}
+                    className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center"
+                    aria-label="Remove image"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ) : (
+                <div className={`w-16 h-20 rounded-lg bg-gradient-to-br ${form.cover_color} shrink-0 flex items-center justify-center`}>
+                  <BookOpen className="h-6 w-6 text-white/60" />
+                </div>
+              )}
+              <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-3 cursor-pointer hover:bg-muted transition-colors text-center">
+                <Upload className="h-5 w-5 text-muted-foreground mb-1" />
+                <span className="text-xs text-muted-foreground">Click to upload</span>
+                <span className="text-[10px] text-muted-foreground">JPG, PNG, WebP · max 2MB</span>
+                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handleImageUpload} />
+              </label>
             </div>
           </div>
+
+          {/* Fallback colour (shown when no image) */}
+          {!form.cover_image && (
+            <div>
+              <label className="text-xs font-medium mb-2 block">Cover Colour <span className="text-muted-foreground font-normal">(used when no image)</span></label>
+              <div className="flex gap-2 flex-wrap">
+                {COVER_OPTIONS.map(c => (
+                  <button key={c} type="button" onClick={() => setForm(f => ({ ...f, cover_color: c }))}
+                    className={`w-8 h-8 rounded-lg bg-gradient-to-br ${c} border-2 transition-all ${form.cover_color === c ? "border-foreground scale-110" : "border-transparent"}`}
+                    aria-label={c}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input type="checkbox" checked={form.in_stock} onChange={e => setForm(f => ({ ...f, in_stock: e.target.checked }))} className="rounded" />
             In Stock

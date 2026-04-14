@@ -13,6 +13,17 @@ const CATEGORIES = ["All", "Personal Development", "Leadership", "Finance & Weal
 interface CartItem extends StoreBook { qty: number; }
 
 function BookCover({ book }: { book: StoreBook }) {
+  if (book.cover_image) {
+    return (
+      <div className="w-full aspect-[3/4] rounded-xl overflow-hidden">
+        <img
+          src={book.cover_image}
+          alt={`Cover of ${book.title}`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
   return (
     <div className={`w-full aspect-[3/4] rounded-xl bg-gradient-to-br ${book.cover_color} flex flex-col items-center justify-center p-4 relative overflow-hidden`}>
       <div className="absolute inset-0 opacity-10 bg-[repeating-linear-gradient(45deg,#fff,#fff_1px,transparent_1px,transparent_8px)]" />
@@ -51,8 +62,11 @@ function CartDrawer({ items, onClose, onQty, onRemove }: {
           )}
           {items.map(item => (
             <div key={item.id} className="flex gap-3 items-start">
-              <div className={`w-14 h-20 rounded-lg bg-gradient-to-br ${item.cover_color} shrink-0 flex items-center justify-center`}>
-                <BookOpen className="h-5 w-5 text-white/70" />
+              <div className={`w-14 h-20 rounded-lg shrink-0 overflow-hidden flex items-center justify-center ${item.cover_image ? "" : `bg-gradient-to-br ${item.cover_color}`}`}>
+                {item.cover_image
+                  ? <img src={item.cover_image} alt={item.title} className="w-full h-full object-cover" />
+                  : <BookOpen className="h-5 w-5 text-white/70" />
+                }
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm leading-tight line-clamp-2">{item.title}</p>
