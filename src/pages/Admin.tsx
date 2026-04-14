@@ -474,13 +474,19 @@ function BooksSection({ token }: { token: string }) {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead><tr className="border-b">
-                {["Title", "Author", "Price", "Category", "Stock", ""].map(h => (
+                {["Cover", "Title", "Author", "Price", "Category", "Stock", ""].map(h => (
                   <th key={h} className="text-left py-3 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wide">{h}</th>
                 ))}
               </tr></thead>
               <tbody>
                 {filtered.map(b => (
                   <tr key={b.id} className="border-b hover:bg-muted/40 transition-colors">
+                    <td className="py-2 px-3">
+                      {b.cover_image
+                        ? <img src={b.cover_image} alt={b.title} className="w-8 h-10 object-cover rounded" />
+                        : <div className={`w-8 h-10 rounded bg-gradient-to-br ${b.cover_color} flex items-center justify-center`}><BookOpen className="h-3 w-3 text-white/70" /></div>
+                      }
+                    </td>
                     <td className="py-3 px-3 font-medium max-w-[180px] truncate">{b.title}</td>
                     <td className="py-3 px-3 text-muted-foreground">{b.author}</td>
                     <td className="py-3 px-3">GH₵{b.price}</td>
