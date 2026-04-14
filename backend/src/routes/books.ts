@@ -40,6 +40,7 @@ router.patch("/:id", requireAuth, async (req, res, next) => {
     const fields = ["title", "author", "price", "category", "description", "cover_color", "cover_image", "in_stock"];
     const updates = fields.filter(f => req.body[f] !== undefined);
     if (!updates.length) return res.status(400).json({ error: "No fields to update." });
+    // Build parameterized SET clause: "title = $1, author = $2, ..."
     const setClause = updates.map((f, i) => `${f} = $${i + 1}`).join(", ");
     const values = [...updates.map(f => req.body[f]), req.params.id];
     const { rows } = await pool.query(
