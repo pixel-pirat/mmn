@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, validationResult } from "express-validator";
-import pool from "../db/pool";
+import { pool } from "../db/pool";
 import { requireAuth } from "../middleware/auth";
 
 const router = Router();
