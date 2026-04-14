@@ -1,16 +1,25 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
 import SectionReveal from "@/components/SectionReveal";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Users, Video, Heart, Lightbulb, ArrowRight, Calendar, MapPin, Clock, X, Loader2, ExternalLink, Trophy, Gift, Flame, Lock, CheckCircle, Sparkles, Star } from "lucide-react";
+import {
+  BookOpen, Users, Video, Heart, Lightbulb, ArrowRight,
+  Calendar, MapPin, Clock, X, Loader2, ExternalLink,
+  Trophy, Gift, Flame, Lock, CheckCircle, Sparkles, Star,
+} from "lucide-react";
 import { toast } from "sonner";
 import { registerForEvent } from "@/lib/api";
 import { useSEO } from "@/lib/seo";
 
-const tabs = ["Programs", "Events", "Challenges"];
+// ── Tab config ───────────────────────────────────────────────
+const TABS = [
+  { key: "programs", label: "Programs" },
+  { key: "events",   label: "Events" },
+  { key: "challenges", label: "Challenges" },
+] as const;
+type Tab = typeof TABS[number]["key"];
 
-// ── Programs data ──────────────────────────────────────────────────────────────
+// ── Programs data ────────────────────────────────────────────
 const programs = [
   {
     icon: BookOpen,
@@ -49,7 +58,7 @@ const programs = [
   },
 ];
 
-// ── Events data ────────────────────────────────────────────────────────────────
+// ── Events data ──────────────────────────────────────────────
 interface Event {
   title: string;
   date: string;
@@ -78,10 +87,7 @@ const pastEvents = [
 ];
 
 function buildGCalLink(event: Event) {
-  const title = encodeURIComponent(event.title);
-  const details = encodeURIComponent(event.description);
-  const location = encodeURIComponent(event.location);
-  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${event.gcalStart}/${event.gcalEnd}&details=${details}&location=${location}`;
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(event.title)}&dates=${event.gcalStart}/${event.gcalEnd}&details=${encodeURIComponent(event.description)}&location=${encodeURIComponent(event.location)}`;
 }
 
 function RegisterModal({ event, onClose }: { event: Event; onClose: () => void }) {
@@ -145,9 +151,9 @@ function RegisterModal({ event, onClose }: { event: Event; onClose: () => void }
   );
 }
 
-// ── Challenges data ────────────────────────────────────────────────────────────
-const GIVING_DAYS = [1,2,3,4,5,6,7].map(d => ({ day: d, amount: d }));
-const TOTAL = GIVING_DAYS.reduce((s, d) => s + d.amount, 0);
+// ── Challenges data ──────────────────────────────────────────
+const GIVING_DAYS = [1, 2, 3, 4, 5, 6, 7].map(day => ({ day, amount: day }));
+const GIVING_TOTAL = GIVING_DAYS.reduce((s, d) => s + d.amount, 0);
 
 const upcomingChallenges = [
   { icon: Sparkles, title: "7-Day Gratitude Journal", desc: "Write one thing you're grateful for every day for a week and share it with the community." },
@@ -155,270 +161,255 @@ const upcomingChallenges = [
   { icon: Flame, title: "Purpose Reflection Challenge", desc: "Answer one deep purpose-discovery question daily for 7 days." },
 ];
 
-// ── Main component ─────────────────────────────────────────────────────────────
-const Programs = () => {
-  useSEO({
-    title: "Programs, Events & Challenges",
-    description: "Explore MMN's programs, upcoming events, and community challenges.",
-  });
+// ── Tab panels ───────────────────────────────────────────────
+function ProgramsTab() {
+  return (
+    <div className="space-y-8">
+      {programs.map((p, i) => (
+        <SectionReveal key={i}>
+          <div className="bg-card rounded-xl p-8 shadow-card border">
+            <div className="flex items-start gap-4 mb-4">
+              <div className="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center shrink-0">
+                <p.icon className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h3 className="font-heading text-2xl font-bold">{p.title}</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{p.audience}</span>
+              </div>
+            </div>
+            <p className="text-muted-foreground mb-4">{p.desc}</p>
+            <div className="mb-4">
+              <h4 className="font-semibold text-sm mb-2">Key Objectives:</h4>
+              <ul className="space-y-1">
+                {p.objectives.map((o, j) => (
+                  <li key={j} className="text-muted-foreground text-sm flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />{o}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </SectionReveal>
+      ))}
+    </div>
+  );
+}
 
-  const [activeTab, setActiveTab] = useState("Programs");
+function EventsTab() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  return (
+    <>
+      <div className="space-y-4 mb-12">
+        <h2 className="font-heading text-2xl font-bold mb-6">Upcoming Events</h2>
+        {upcomingEvents.map((e, i) => (
+          <SectionReveal key={i}>
+            <div className="bg-card rounded-xl p-6 shadow-card border flex flex-col md:flex-row md:items-center gap-4">
+              <div className="flex-1">
+                <span className="text-xs font-medium bg-accent text-accent-foreground px-2 py-0.5 rounded-full">{e.type}</span>
+                <h3 className="font-heading font-semibold text-lg mt-2">{e.title}</h3>
+                <p className="text-muted-foreground text-sm mt-1 mb-2">{e.description}</p>
+                <div className="flex flex-wrap gap-4 text-muted-foreground text-sm">
+                  <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{e.date}</span>
+                  <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{e.time}</span>
+                  <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{e.location}</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2 shrink-0">
+                <Button onClick={() => setSelectedEvent(e)} className="gradient-primary text-primary-foreground border-0">
+                  Register <ArrowRight className="ml-2 h-3 w-3" />
+                </Button>
+                <a href={buildGCalLink(e)} target="_blank" rel="noopener noreferrer" className="text-xs text-center text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1">
+                  <ExternalLink className="h-3 w-3" /> Add to Calendar
+                </a>
+              </div>
+            </div>
+          </SectionReveal>
+        ))}
+      </div>
+
+      <div className="pt-8 border-t">
+        <h2 className="font-heading text-2xl font-bold mb-6">Past Events</h2>
+        <div className="grid sm:grid-cols-3 gap-6">
+          {pastEvents.map((e, i) => (
+            <SectionReveal key={i}>
+              <div className="bg-card rounded-xl p-6 shadow-card border">
+                <h3 className="font-heading font-semibold mb-2">{e.title}</h3>
+                <p className="text-muted-foreground text-sm">{e.highlight}</p>
+              </div>
+            </SectionReveal>
+          ))}
+        </div>
+      </div>
+
+      {selectedEvent && <RegisterModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
+    </>
+  );
+}
+
+function ChallengesTab() {
   const [checkedDays, setCheckedDays] = useState<number[]>([]);
 
   const toggleDay = (day: number) =>
     setCheckedDays(prev => prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]);
 
   const completedAmount = GIVING_DAYS.filter(d => checkedDays.includes(d.day)).reduce((s, d) => s + d.amount, 0);
-  const progressPct = Math.round((completedAmount / TOTAL) * 100);
+  const progressPct = Math.round((completedAmount / GIVING_TOTAL) * 100);
+
+  return (
+    <div className="space-y-12">
+      {/* 7-Day Giving Challenge */}
+      <SectionReveal>
+        <div className="bg-card rounded-2xl shadow-elevated border overflow-hidden">
+          <div className="gradient-cta p-8 text-center relative overflow-hidden">
+            <div className="absolute inset-0 opacity-10">
+              <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-primary-foreground/30 blur-3xl" />
+              <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-primary-foreground/20 blur-3xl" />
+            </div>
+            <div className="relative z-10">
+              <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-4">
+                <Gift className="h-8 w-8 text-primary-foreground" />
+              </div>
+              <span className="inline-block bg-primary-foreground/20 text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full mb-3">
+                🔥 Active Challenge
+              </span>
+              <h2 className="font-heading text-3xl font-bold text-primary-foreground mb-2">7-Day Giving Challenge</h2>
+              <p className="text-primary-foreground/80 max-w-md mx-auto text-sm leading-relaxed">
+                Give GH₵1 on Day 1, GH₵2 on Day 2 — adding one cedi each day until Day 7. A small daily act of generosity that adds up to something meaningful.
+              </p>
+            </div>
+          </div>
+
+          <div className="px-8 pt-6">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span className="text-muted-foreground font-medium">Your progress</span>
+              <span className="font-semibold">GH₵{completedAmount} / GH₵{GIVING_TOTAL}</span>
+            </div>
+            <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+              <div className="h-full gradient-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1.5 text-right">{progressPct}% complete</p>
+          </div>
+
+          <div className="p-8">
+            <p className="text-sm font-medium text-muted-foreground mb-4">Tick each day as you complete it:</p>
+            <div className="grid grid-cols-7 gap-2 mb-8">
+              {GIVING_DAYS.map(({ day, amount }) => {
+                const done = checkedDays.includes(day);
+                return (
+                  <button key={day} onClick={() => toggleDay(day)}
+                    className={`flex flex-col items-center justify-center rounded-xl p-3 border-2 transition-all duration-200 ${done ? "gradient-primary border-transparent text-primary-foreground shadow-glow" : "border-border hover:border-primary bg-muted/40 hover:bg-accent"}`}
+                    aria-label={`Day ${day} — GH₵${amount}`}
+                  >
+                    <span className="text-[10px] font-medium mb-1 opacity-70">Day</span>
+                    <span className="font-heading font-bold text-lg leading-none">{day}</span>
+                    <span className="text-[10px] mt-1 font-semibold">₵{amount}</span>
+                    {done && <CheckCircle className="h-3.5 w-3.5 mt-1" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="bg-muted/50 rounded-xl p-5 mb-6">
+              <h4 className="font-heading font-semibold mb-3 flex items-center gap-2">
+                <Star className="h-4 w-4 text-primary" /> How it works
+              </h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Give GH₵1 on Day 1, GH₵2 on Day 2, and so on up to GH₵7 on Day 7.</li>
+                <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Total giving over 7 days: <span className="font-semibold text-foreground ml-1">GH₵{GIVING_TOTAL}</span></li>
+                <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Tick each day above to track your progress.</li>
+                <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Share your journey with the community — inspire others to join!</li>
+              </ul>
+            </div>
+
+            {checkedDays.length === 7 ? (
+              <div className="text-center py-4">
+                <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
+                  <Trophy className="h-8 w-8 text-primary-foreground" />
+                </div>
+                <h3 className="font-heading text-xl font-bold mb-1">Challenge Complete! 🎉</h3>
+                <p className="text-muted-foreground text-sm">You gave GH₵{GIVING_TOTAL} over 7 days. That's the spirit of purposeful generosity.</p>
+              </div>
+            ) : (
+              <Button className="gradient-primary text-primary-foreground border-0 w-full font-semibold" onClick={() => window.location.href = "/get-involved"}>
+                Join the Challenge — Get Involved <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </SectionReveal>
+
+      {/* Upcoming challenges */}
+      <div>
+        <div className="text-center mb-8">
+          <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-2">More Coming Soon</p>
+          <h2 className="font-heading text-2xl font-bold">Upcoming Challenges</h2>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-5">
+          {upcomingChallenges.map((c, i) => (
+            <SectionReveal key={i}>
+              <div className="bg-card rounded-xl p-6 shadow-card border relative overflow-hidden">
+                <div className="absolute inset-0 bg-muted/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 rounded-xl">
+                  <Lock className="h-6 w-6 text-muted-foreground mb-2" />
+                  <span className="text-xs font-semibold text-muted-foreground">Coming Soon</span>
+                </div>
+                <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center mb-4">
+                  <c.icon className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <h3 className="font-heading font-bold mb-2">{c.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{c.desc}</p>
+              </div>
+            </SectionReveal>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main page ────────────────────────────────────────────────
+const Programs = () => {
+  useSEO({
+    title: "Programs, Events & Challenges",
+    description: "Explore MMN's programs, upcoming events, and community challenges — all in one place.",
+  });
+
+  const [activeTab, setActiveTab] = useState<Tab>("programs");
 
   return (
     <Layout>
       <section className="gradient-primary py-20">
         <div className="container text-center">
-          <h1 className="font-heading text-4xl md:text-5xl font-bold text-primary-foreground mb-4">Programs, Events & Challenges</h1>
+          <h1 className="font-heading text-4xl md:text-5xl font-bold text-primary-foreground mb-4">
+            Programs, Events & Challenges
+          </h1>
           <p className="text-primary-foreground/80 max-w-xl mx-auto">
-            Grow through our programs, join upcoming events, and take on community challenges.
+            Everything MMN offers — from structured programs to live events and community challenges.
           </p>
         </div>
       </section>
 
-      {/* Tab bar */}
+      {/* Sticky tab bar */}
       <div className="sticky top-16 z-30 bg-background/95 backdrop-blur border-b">
         <div className="container flex gap-1 py-3 justify-center">
-          {tabs.map(t => (
-            <button key={t} onClick={() => setActiveTab(t)}
+          {TABS.map(t => (
+            <button key={t.key} onClick={() => setActiveTab(t.key)}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === t ? "gradient-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                activeTab === t.key ? "gradient-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
               }`}
-            >{t}</button>
+            >
+              {t.label}
+            </button>
           ))}
         </div>
       </div>
 
-      {/* ── Programs Tab ── */}
-      {activeTab === "Programs" && (
-        <section className="py-16">
-          <div className="container max-w-4xl space-y-12">
-            {programs.map((p, i) => (
-              <SectionReveal key={i}>
-                <div className="bg-card rounded-xl p-8 shadow-card border">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-                      <p.icon className="h-6 w-6 text-primary-foreground" />
-                    </div>
-                    <div>
-                      <h3 className="font-heading text-2xl font-bold">{p.title}</h3>
-                      <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{p.audience}</span>
-                    </div>
-                  </div>
-                  <p className="text-muted-foreground mb-4">{p.desc}</p>
-                  <div className="mb-4">
-                    <h4 className="font-semibold text-sm mb-2">Key Objectives:</h4>
-                    <ul className="space-y-1">
-                      {p.objectives.map((o, j) => (
-                        <li key={j} className="text-muted-foreground text-sm flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />{o}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <Button onClick={() => setActiveTab("Events")} variant="outline" size="sm" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                    View Upcoming Sessions <ArrowRight className="ml-2 h-3 w-3" />
-                  </Button>
-                </div>
-              </SectionReveal>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── Events Tab ── */}
-      {activeTab === "Events" && (
-        <>
-          <section className="py-16">
-            <div className="container max-w-4xl">
-              <h2 className="font-heading text-3xl font-bold mb-8">Upcoming Events</h2>
-              <div className="space-y-4">
-                {upcomingEvents.map((e, i) => (
-                  <SectionReveal key={i}>
-                    <div className="bg-card rounded-xl p-6 shadow-card border flex flex-col md:flex-row md:items-center gap-4">
-                      <div className="flex-1">
-                        <span className="text-xs font-medium bg-accent text-accent-foreground px-2 py-0.5 rounded-full">{e.type}</span>
-                        <h3 className="font-heading font-semibold text-lg mt-2">{e.title}</h3>
-                        <p className="text-muted-foreground text-sm mt-1 mb-2">{e.description}</p>
-                        <div className="flex flex-wrap gap-4 text-muted-foreground text-sm">
-                          <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{e.date}</span>
-                          <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{e.time}</span>
-                          <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{e.location}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 shrink-0">
-                        <Button onClick={() => setSelectedEvent(e)} className="gradient-primary text-primary-foreground border-0">
-                          Register <ArrowRight className="ml-2 h-3 w-3" />
-                        </Button>
-                        <a href={buildGCalLink(e)} target="_blank" rel="noopener noreferrer" className="text-xs text-center text-muted-foreground hover:text-primary transition-colors flex items-center justify-center gap-1">
-                          <ExternalLink className="h-3 w-3" /> Add to Calendar
-                        </a>
-                      </div>
-                    </div>
-                  </SectionReveal>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section className="py-16 gradient-subtle">
-            <div className="container max-w-4xl">
-              <h2 className="font-heading text-3xl font-bold mb-8">Past Events</h2>
-              <div className="grid sm:grid-cols-3 gap-6">
-                {pastEvents.map((e, i) => (
-                  <SectionReveal key={i}>
-                    <div className="bg-card rounded-xl p-6 shadow-card border">
-                      <h3 className="font-heading font-semibold mb-2">{e.title}</h3>
-                      <p className="text-muted-foreground text-sm">{e.highlight}</p>
-                    </div>
-                  </SectionReveal>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {selectedEvent && <RegisterModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
-        </>
-      )}
-
-      {/* ── Challenges Tab ── */}
-      {activeTab === "Challenges" && (
-        <>
-          <section className="py-16">
-            <div className="container max-w-3xl">
-              <SectionReveal>
-                <div className="bg-card rounded-2xl shadow-elevated border overflow-hidden">
-                  <div className="gradient-cta p-8 text-center relative overflow-hidden">
-                    <div className="absolute inset-0 opacity-10">
-                      <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-primary-foreground/30 blur-3xl" />
-                      <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-primary-foreground/20 blur-3xl" />
-                    </div>
-                    <div className="relative z-10">
-                      <div className="w-16 h-16 rounded-2xl bg-primary-foreground/20 flex items-center justify-center mx-auto mb-4">
-                        <Gift className="h-8 w-8 text-primary-foreground" />
-                      </div>
-                      <span className="inline-block bg-primary-foreground/20 text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full mb-3">🔥 Active Challenge</span>
-                      <h2 className="font-heading text-3xl font-bold text-primary-foreground mb-2">7-Day Giving Challenge</h2>
-                      <p className="text-primary-foreground/80 max-w-md mx-auto text-sm leading-relaxed">
-                        Give GH₵1 on Day 1, GH₵2 on Day 2 — adding one cedi each day until Day 7. A small daily act of generosity that adds up to something meaningful.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="px-8 pt-6">
-                    <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-muted-foreground font-medium">Your progress</span>
-                      <span className="font-semibold text-foreground">GH₵{completedAmount} / GH₵{TOTAL}</span>
-                    </div>
-                    <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                      <div className="h-full gradient-primary rounded-full transition-all duration-500" style={{ width: `${progressPct}%` }} />
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1.5 text-right">{progressPct}% complete</p>
-                  </div>
-
-                  <div className="p-8">
-                    <p className="text-sm font-medium text-muted-foreground mb-4">Tick each day as you complete it:</p>
-                    <div className="grid grid-cols-7 gap-2 mb-8">
-                      {GIVING_DAYS.map(({ day, amount }) => {
-                        const done = checkedDays.includes(day);
-                        return (
-                          <button key={day} onClick={() => toggleDay(day)}
-                            className={`flex flex-col items-center justify-center rounded-xl p-3 border-2 transition-all duration-200 ${done ? "gradient-primary border-transparent text-primary-foreground shadow-glow" : "border-border hover:border-primary bg-muted/40 hover:bg-accent"}`}
-                            aria-label={`Day ${day} — GH₵${amount}`}
-                          >
-                            <span className="text-[10px] font-medium mb-1 opacity-70">Day</span>
-                            <span className="font-heading font-bold text-lg leading-none">{day}</span>
-                            <span className="text-[10px] mt-1 font-semibold">₵{amount}</span>
-                            {done && <CheckCircle className="h-3.5 w-3.5 mt-1" />}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <div className="bg-muted/50 rounded-xl p-5 mb-6">
-                      <h4 className="font-heading font-semibold mb-3 flex items-center gap-2">
-                        <Star className="h-4 w-4 text-primary" /> How it works
-                      </h4>
-                      <ul className="space-y-2 text-sm text-muted-foreground">
-                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Give GH₵1 on Day 1, GH₵2 on Day 2, and so on up to GH₵7 on Day 7.</li>
-                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Total giving over 7 days: <span className="font-semibold text-foreground ml-1">GH₵{TOTAL}</span></li>
-                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Tick each day above to track your progress.</li>
-                        <li className="flex items-start gap-2"><div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />Share your journey with the community — inspire others to join!</li>
-                      </ul>
-                    </div>
-
-                    {checkedDays.length === 7 ? (
-                      <div className="text-center py-4">
-                        <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mx-auto mb-3 shadow-glow">
-                          <Trophy className="h-8 w-8 text-primary-foreground" />
-                        </div>
-                        <h3 className="font-heading text-xl font-bold mb-1">Challenge Complete! 🎉</h3>
-                        <p className="text-muted-foreground text-sm">You gave GH₵{TOTAL} over 7 days. That's the spirit of purposeful generosity.</p>
-                      </div>
-                    ) : (
-                      <Link to="/get-involved">
-                        <Button className="gradient-primary text-primary-foreground border-0 w-full font-semibold">
-                          Join the Challenge — Get Involved <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </SectionReveal>
-            </div>
-          </section>
-
-          <section className="py-16 gradient-subtle">
-            <div className="container max-w-3xl">
-              <SectionReveal>
-                <div className="text-center mb-10">
-                  <p className="text-primary font-semibold text-sm tracking-widest uppercase mb-2">More Coming Soon</p>
-                  <h2 className="font-heading text-3xl font-bold">Upcoming Challenges</h2>
-                  <p className="text-muted-foreground mt-3 max-w-md mx-auto text-sm">We're always cooking up new ways to grow together. Stay tuned.</p>
-                </div>
-              </SectionReveal>
-              <div className="grid sm:grid-cols-3 gap-5">
-                {upcomingChallenges.map((c, i) => (
-                  <SectionReveal key={i}>
-                    <div className="bg-card rounded-xl p-6 shadow-card border relative overflow-hidden">
-                      <div className="absolute inset-0 bg-muted/60 backdrop-blur-[1px] flex flex-col items-center justify-center z-10 rounded-xl">
-                        <Lock className="h-6 w-6 text-muted-foreground mb-2" />
-                        <span className="text-xs font-semibold text-muted-foreground">Coming Soon</span>
-                      </div>
-                      <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center mb-4">
-                        <c.icon className="h-5 w-5 text-primary-foreground" />
-                      </div>
-                      <h3 className="font-heading font-bold mb-2">{c.title}</h3>
-                      <p className="text-muted-foreground text-sm leading-relaxed">{c.desc}</p>
-                    </div>
-                  </SectionReveal>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <SectionReveal>
-            <section className="py-16">
-              <div className="container max-w-2xl text-center">
-                <h2 className="font-heading text-2xl font-bold mb-3">Want to suggest a challenge?</h2>
-                <p className="text-muted-foreground mb-6 text-sm">Have an idea for a fun community activity? We'd love to hear it.</p>
-                <Link to="/contact">
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold">
-                    Share Your Idea <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-              </div>
-            </section>
-          </SectionReveal>
-        </>
-      )}
+      <section className="py-12">
+        <div className="container max-w-4xl">
+          {activeTab === "programs"   && <ProgramsTab />}
+          {activeTab === "events"     && <EventsTab />}
+          {activeTab === "challenges" && <ChallengesTab />}
+        </div>
+      </section>
     </Layout>
   );
 };
