@@ -207,7 +207,7 @@ function DonateTab() {
 
 const GetInvolved = () => {
   useSEO({
-    title: "Get Involved",
+    title: "Get Involved", path: "/get-involved",
     description: "Join, volunteer, mentor, partner, or donate to support MeaningMatters Network's mission.",
   });
   const [activeTab, setActiveTab] = useState("join");

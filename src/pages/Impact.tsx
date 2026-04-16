@@ -20,7 +20,7 @@ const stories = [
 
 const Impact = () => {
   useSEO({
-    title: "Impact & Recognition",
+    title: "Impact & Recognition", path: "/impact",
     description: "See the real-world impact of MeaningMatters Network — lives changed, communities reached, and recognition earned.",
   });
 

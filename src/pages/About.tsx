@@ -54,7 +54,7 @@ function MemberCard({ name, title, bio, expertise }: { name: string; title: stri
 
 const About = () => {
   useSEO({
-    title: "About Us",
+    title: "About Us", path: "/about",
     description: "Learn about MeaningMatters Network — our story, mission, vision, values, and the leaders driving our mission.",
   });
 

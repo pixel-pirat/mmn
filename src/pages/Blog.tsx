@@ -8,7 +8,7 @@ import { useSEO } from "@/lib/seo";
 
 const Blog = () => {
   useSEO({
-    title: "Blog & Insights",
+    title: "Blog & Insights", path: "/blog",
     description: "Thought leadership, practical advice, and stories of purpose-driven youth from MeaningMatters Network.",
   });
 

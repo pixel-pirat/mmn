@@ -53,7 +53,7 @@ function MemberCard({ member }: { member: TeamMember }) {
 
 const Executives = () => {
   useSEO({
-    title: "Our Leadership",
+    title: "Our Leadership", path: "/executives",
     description: "Meet the Board of Directors and Executive Team driving MeaningMatters Network's mission forward.",
   });
 

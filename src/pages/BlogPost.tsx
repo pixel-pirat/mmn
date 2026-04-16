@@ -45,6 +45,9 @@ const BlogPost = () => {
   useSEO({
     title: post?.title ?? "Article",
     description: post?.excerpt ?? "",
+    path: `/blog/${slug ?? ""}`,
+    type: "article",
+  });
   });
 
   if (!post) return <Navigate to="/blog" replace />;

@@ -369,7 +369,7 @@ function ChallengesTab() {
 // ── Main page ────────────────────────────────────────────────
 const Programs = () => {
   useSEO({
-    title: "Programs, Events & Challenges",
+    title: "Programs, Events & Challenges", path: "/programs",
     description: "Explore MMN's programs, upcoming events, and community challenges — all in one place.",
   });
 

@@ -11,7 +11,7 @@ const WHATSAPP_NUMBER = "233537081030";
 
 const Contact = () => {
   useSEO({
-    title: "Contact Us",
+    title: "Contact Us", path: "/contact",
     description: "Get in touch with MeaningMatters Network for inquiries, partnerships, or to learn more about our programs.",
   });
 

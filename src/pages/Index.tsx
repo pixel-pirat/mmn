@@ -25,7 +25,7 @@ const WHATSAPP_COMMUNITY = "https://chat.whatsapp.com/CJUWzgnSDbbCpGYwSF1kMd";
 
 const Index = () => {
   useSEO({
-    title: "Home",
+    title: "Home", path: "/",
     description: "MeaningMatters Network is committed to helping individuals discover their identity, unlock their potential, and live purposeful, impactful lives.",
   });
 

@@ -110,7 +110,7 @@ function CartDrawer({ items, onClose, onQty, onRemove }: {
 
 const Store = () => {
   useSEO({
-    title: "Bookstore",
+    title: "Bookstore", path: "/store",
     description: "Browse MeaningMatters Network's curated collection of books on purpose, leadership, and personal development.",
   });
 

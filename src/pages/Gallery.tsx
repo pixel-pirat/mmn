@@ -40,7 +40,7 @@ const gradients = [
 
 const Gallery = () => {
   useSEO({
-    title: "Media & Gallery",
+    title: "Media & Gallery", path: "/gallery",
     description: "Explore photos, videos, and highlights from MeaningMatters Network programs and events.",
   });
 
