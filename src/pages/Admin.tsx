@@ -16,9 +16,10 @@ import {
   deleteVolunteer, deleteMentor, deletePartner, deleteMessage,
   getBooks, adminCreateBook, adminUpdateBook, adminDeleteBook,
   getOrders, updateOrder,
+  getTeam, adminCreateTeamMember, adminUpdateTeamMember, adminDeleteTeamMember,
   type AdminUser, type DashboardStats, type RecentActivity,
   type Submission, type Subscriber,
-  type StoreBook, type Order,
+  type StoreBook, type Order, type TeamMember,
 } from "@/lib/api";
 import { useSEO } from "@/lib/seo";
 
@@ -598,6 +599,227 @@ function OrdersSection({ token }: { token: string }) {
   );
 }
 
+// ── Team Section ─────────────────────────────────────────────
+function TeamMemberModal({ member, token, onClose, onSaved }: {
+  member: TeamMember | null;
+  token: string;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: member?.name ?? "",
+    title: member?.title ?? "",
+    bio: member?.bio ?? "",
+    expertise: member?.expertise ?? "",
+    email: member?.email ?? "",
+    linkedin: member?.linkedin ?? "",
+    facebook: member?.facebook ?? "",
+    photo: member?.photo ?? "",
+    category: member?.category ?? "board" as "board" | "executive",
+    display_order: String(member?.display_order ?? 0),
+  });
+
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    setForm(f => ({ ...f, [k]: e.target.value }));
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { alert("Photo must be under 2MB."); return; }
+    const reader = new FileReader();
+    reader.onload = () => setForm(f => ({ ...f, photo: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = { ...form, display_order: Number(form.display_order), photo: form.photo || null };
+      if (member) {
+        await adminUpdateTeamMember(member.id, token, payload as unknown as Partial<TeamMember>);
+        toast.success("Member updated.");
+      } else {
+        await adminCreateTeamMember(token, payload as unknown as Partial<TeamMember>);
+        toast.success("Member added.");
+      }
+      onSaved();
+      onClose();
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const initials = form.name.split(" ").map(n => n[0]).join("").slice(0, 2);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-card rounded-2xl p-6 shadow-elevated border w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-heading font-bold text-lg">{member ? "Edit Member" : "Add Member"}</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-muted transition-colors" aria-label="Close"><X className="h-4 w-4" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Photo upload */}
+          <div>
+            <label className="text-xs font-medium mb-2 block">Profile Photo <span className="text-muted-foreground font-normal">(optional)</span></label>
+            <div className="flex items-center gap-3">
+              <div className="w-16 h-16 rounded-full overflow-hidden shrink-0">
+                {form.photo
+                  ? <img src={form.photo} alt="Preview" className="w-full h-full object-cover" />
+                  : <div className="w-full h-full gradient-primary flex items-center justify-center"><span className="text-primary-foreground font-bold text-lg">{initials || "?"}</span></div>
+                }
+              </div>
+              <div className="flex-1 flex flex-col gap-1">
+                <label className="flex items-center gap-2 border-2 border-dashed rounded-lg px-3 py-2 cursor-pointer hover:bg-muted transition-colors text-xs text-muted-foreground">
+                  <Upload className="h-4 w-4 shrink-0" />
+                  <span>Click to upload · JPG, PNG, WebP · max 2MB</span>
+                  <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={handlePhotoUpload} />
+                </label>
+                {form.photo && (
+                  <button type="button" onClick={() => setForm(f => ({ ...f, photo: "" }))} className="text-xs text-destructive hover:underline text-left">Remove photo</button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">Full Name *</label>
+              <input value={form.name} onChange={set("name")} required placeholder="e.g. John Doe" className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">Title / Role *</label>
+              <input value={form.title} onChange={set("title")} required placeholder="e.g. President" className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">Category *</label>
+              <select value={form.category} onChange={set("category")} className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none">
+                <option value="board">Board of Directors</option>
+                <option value="executive">Executive Team</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">Display Order</label>
+              <input type="number" value={form.display_order} onChange={set("display_order")} min="0" placeholder="0" className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium mb-1 block">Expertise / Area</label>
+            <input value={form.expertise} onChange={set("expertise")} placeholder="e.g. Leadership & Strategy" className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium mb-1 block">Bio</label>
+            <textarea value={form.bio} onChange={set("bio")} rows={3} placeholder="Short bio..." className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none resize-none" />
+          </div>
+
+          <div>
+            <label className="text-xs font-medium mb-1 block">Email</label>
+            <input type="email" value={form.email} onChange={set("email")} placeholder="name@example.com" className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium mb-1 block">LinkedIn URL</label>
+              <input value={form.linkedin} onChange={set("linkedin")} placeholder="https://linkedin.com/in/..." className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs font-medium mb-1 block">Facebook URL</label>
+              <input value={form.facebook} onChange={set("facebook")} placeholder="https://facebook.com/..." className="w-full px-3 py-2 rounded-lg border bg-background text-sm focus:ring-2 focus:ring-primary focus:outline-none" />
+            </div>
+          </div>
+
+          <Button disabled={loading} className="gradient-primary text-primary-foreground border-0 w-full">
+            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving…</> : member ? "Save Changes" : "Add Member"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function TeamSection({ token }: { token: string }) {
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState<TeamMember | null | undefined>(undefined);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try { setMembers(await getTeam()); } catch { toast.error("Failed to load team."); } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Remove this team member?")) return;
+    try { await adminDeleteTeamMember(id, token); toast.success("Removed."); load(); } catch { toast.error("Delete failed."); }
+  };
+
+  const board = members.filter(m => m.category === "board");
+  const executive = members.filter(m => m.category === "executive");
+
+  const renderGroup = (title: string, group: TeamMember[]) => (
+    <div className="mb-8">
+      <h3 className="font-heading font-semibold text-sm text-muted-foreground uppercase tracking-wide mb-3">{title}</h3>
+      {group.length === 0 ? (
+        <p className="text-sm text-muted-foreground py-4 text-center border rounded-xl">No members yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {group.map(m => (
+            <div key={m.id} className="bg-card border rounded-xl p-4 flex items-start gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+                {m.photo
+                  ? <img src={m.photo} alt={m.name} className="w-full h-full object-cover" />
+                  : <div className="w-full h-full gradient-primary flex items-center justify-center"><span className="text-primary-foreground font-bold text-sm">{m.name.split(" ").map(n => n[0]).join("").slice(0, 2)}</span></div>
+                }
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-sm truncate">{m.name}</p>
+                <p className="text-xs text-primary truncate">{m.title}</p>
+                {m.expertise && <p className="text-xs text-muted-foreground truncate">{m.expertise}</p>}
+              </div>
+              <div className="flex flex-col gap-1 shrink-0">
+                <button onClick={() => setModal(m)} className="p-1.5 rounded hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" aria-label="Edit"><Edit2 className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleDelete(m.id)} className="p-1.5 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" aria-label="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-heading font-semibold">Team Members ({members.length})</h2>
+        <Button size="sm" onClick={() => setModal(null)} className="gradient-primary text-primary-foreground border-0">
+          <Plus className="h-4 w-4 mr-1" /> Add Member
+        </Button>
+      </div>
+      {loading ? (
+        <div className="py-12 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" /></div>
+      ) : (
+        <div className="bg-card rounded-xl border shadow-card p-6">
+          {renderGroup("Board of Directors", board)}
+          {renderGroup("Executive Team", executive)}
+        </div>
+      )}
+      {modal !== undefined && (
+        <TeamMemberModal member={modal} token={token} onClose={() => setModal(undefined)} onSaved={load} />
+      )}
+    </div>
+  );
+}
+
 // ── Overview Section ─────────────────────────────────────────
 function OverviewSection({
   stats,
@@ -734,7 +956,7 @@ function OverviewSection({
 }
 
 // ── Main Dashboard ───────────────────────────────────────────
-type Section = "dashboard" | "volunteers" | "mentors" | "partners" | "messages" | "subscribers" | "events" | "books" | "orders";
+type Section = "dashboard" | "volunteers" | "mentors" | "partners" | "messages" | "subscribers" | "events" | "books" | "orders" | "team";
 
 const NAV: { key: Section; label: string; icon: React.ElementType; group?: string }[] = [
   { key: "dashboard",   label: "Overview",     icon: LayoutDashboard },
@@ -746,6 +968,7 @@ const NAV: { key: Section; label: string; icon: React.ElementType; group?: strin
   { key: "events",      label: "Event Regs",   icon: Calendar,     group: "People" },
   { key: "books",       label: "Books",        icon: BookOpen,     group: "Store" },
   { key: "orders",      label: "Orders",       icon: ShoppingBag,  group: "Store" },
+  { key: "team",        label: "Team",         icon: Users,        group: "Content" },
 ];
 
 function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser; onLogout: () => void }) {
@@ -825,7 +1048,7 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
   };
 
   const currentConfig = SECTION_CONFIG[section];
-  const groups = ["People", "Store"];
+  const groups = ["People", "Store", "Content"];
 
   const navigate = (s: Section) => {
     setSection(s);
@@ -896,6 +1119,7 @@ function Dashboard({ token, admin, onLogout }: { token: string; admin: AdminUser
 
           {section === "books" && <BooksSection token={token} />}
           {section === "orders" && <OrdersSection token={token} />}
+          {section === "team" && <TeamSection token={token} />}
 
           {section === "subscribers" && (
             <div className="bg-card rounded-xl border shadow-card overflow-hidden">

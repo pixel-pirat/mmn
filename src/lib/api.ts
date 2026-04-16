@@ -228,3 +228,40 @@ export interface Order {
   notes?: string;
   created_at: string;
 }
+
+// ── Team ─────────────────────────────────────────────────────
+
+export interface TeamMember {
+  id: number;
+  name: string;
+  title: string;
+  bio?: string;
+  expertise?: string;
+  email?: string;
+  linkedin?: string;
+  facebook?: string;
+  photo?: string | null;
+  category: "board" | "executive";
+  display_order: number;
+  created_at?: string;
+}
+
+export const getTeam = () =>
+  fetch(`${BASE}/api/team`).then(r => r.json()) as Promise<TeamMember[]>;
+
+export const adminCreateTeamMember = async (token: string, data: Partial<TeamMember>): Promise<TeamMember> => {
+  const res = await fetch(`${BASE}/api/team`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json?.error ?? "Failed to create team member");
+  return json;
+};
+
+export const adminUpdateTeamMember = (id: number, token: string, data: Partial<TeamMember>) =>
+  patch<TeamMember>(`/api/team/${id}`, token, data as Record<string, string>);
+
+export const adminDeleteTeamMember = (id: number, token: string) =>
+  del(`/api/team/${id}`, token);

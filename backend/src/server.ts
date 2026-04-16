@@ -14,6 +14,7 @@ import eventRoutes      from "./routes/events";
 import dashboardRoutes  from "./routes/dashboard";
 import bookRoutes       from "./routes/books";
 import orderRoutes      from "./routes/orders";
+import teamRoutes       from "./routes/team";
 import { errorHandler } from "./middleware/errorHandler";
 
 dotenv.config();
@@ -60,6 +61,7 @@ app.use("/api/events",     eventRoutes);
 app.use("/api/dashboard",  dashboardRoutes);
 app.use("/api/books",      bookRoutes);
 app.use("/api/orders",     orderRoutes);
+app.use("/api/team",       teamRoutes);
 
 // ── 404 ──────────────────────────────────────────────────────
 app.use((_req, res) => {

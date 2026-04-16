@@ -10,7 +10,9 @@
     "db:migrate": "ts-node src/db/migrate.ts",
     "db:seed": "ts-node src/db/seed.ts",
     "db:seed-books": "ts-node src/db/seed-books.ts",
-    "db:add-cover-image": "ts-node src/db/add-cover-image.ts"
+    "db:add-cover-image": "ts-node src/db/add-cover-image.ts",
+    "db:add-team-table": "ts-node src/db/add-team-table.ts",
+    "db:seed-team": "ts-node src/db/seed-team.ts"
   },
   "keywords": [],
   "author": "MMN",
