@@ -27,7 +27,7 @@ async function get<T>(path: string, token: string, params?: Record<string, strin
   return data as T;
 }
 
-async function patch<T>(path: string, token: string, body: Record<string, string>): Promise<T> {
+async function patch<T>(path: string, token: string, body: Record<string, unknown>): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -102,16 +102,16 @@ export const getEventRegistrations = (token: string, event?: string) =>
 
 // ── Admin updates ────────────────────────────────────────────
 
-export const updateVolunteer = (id: number, token: string, body: Record<string, string>) =>
+export const updateVolunteer = (id: number, token: string, body: Record<string, unknown>) =>
   patch(`/api/volunteers/${id}`, token, body);
 
-export const updateMentor = (id: number, token: string, body: Record<string, string>) =>
+export const updateMentor = (id: number, token: string, body: Record<string, unknown>) =>
   patch(`/api/mentors/${id}`, token, body);
 
-export const updatePartner = (id: number, token: string, body: Record<string, string>) =>
+export const updatePartner = (id: number, token: string, body: Record<string, unknown>) =>
   patch(`/api/partners/${id}`, token, body);
 
-export const updateMessage = (id: number, token: string, body: Record<string, string>) =>
+export const updateMessage = (id: number, token: string, body: Record<string, unknown>) =>
   patch(`/api/contact/${id}`, token, body);
 
 export const deleteVolunteer = (id: number, token: string) => del(`/api/volunteers/${id}`, token);
@@ -186,14 +186,14 @@ export const adminCreateBook = async (token: string, data: Partial<StoreBook>): 
 };
 
 export const adminUpdateBook = (id: number, token: string, data: Partial<StoreBook>) =>
-  patch<StoreBook>(`/api/books/${id}`, token, data as Record<string, string>);
+  patch<StoreBook>(`/api/books/${id}`, token, data as Record<string, unknown>);
 
 export const adminDeleteBook = (id: number, token: string) => del(`/api/books/${id}`, token);
 
 export const getOrders = (token: string) =>
   get<Order[]>("/api/orders", token);
 
-export const updateOrder = (id: number, token: string, body: Record<string, string>) =>
+export const updateOrder = (id: number, token: string, body: Record<string, unknown>) =>
   patch<Order>(`/api/orders/${id}`, token, body);
 
 export const placeOrder = (data: {
@@ -261,7 +261,7 @@ export const adminCreateTeamMember = async (token: string, data: Partial<TeamMem
 };
 
 export const adminUpdateTeamMember = (id: number, token: string, data: Partial<TeamMember>) =>
-  patch<TeamMember>(`/api/team/${id}`, token, data as Record<string, string>);
+  patch<TeamMember>(`/api/team/${id}`, token, data as Record<string, unknown>);
 
 export const adminDeleteTeamMember = (id: number, token: string) =>
   del(`/api/team/${id}`, token);
