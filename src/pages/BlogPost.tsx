@@ -48,7 +48,6 @@ const BlogPost = () => {
     path: `/blog/${slug ?? ""}`,
     type: "article",
   });
-  });
 
   if (!post) return <Navigate to="/blog" replace />;
 
