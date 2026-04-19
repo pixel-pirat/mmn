@@ -1,6 +1,7 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/((?!sitemap\\.xml|robots\\.txt|og-image\\.png|favicon\\.png|favicon\\.ico|placeholder\\.svg).*)", "destination": "/index.html" }
   ]
 }
